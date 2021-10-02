@@ -171,7 +171,7 @@ public:
 enum MyopicMode {naive = 0, smart = 1, reserved = 2, nc = 3, bs = 4};
 enum MyopicModelType {ip = 0, sp = 1};
 
-// TODO 4/12
+
 class MyopicPlanner{
 private:
     int num_experiment_;            // Store the number of experiments
@@ -209,7 +209,6 @@ private:
     std::map<int, std::vector<MyopicUpgradePlan> > compounded_orders_nc_; 
     double baseline_beta_;  // A coeffiecient for the upper bound of baseline in bs mode
 
-    // Use for debug
     void setMode(MyopicMode m);
 
     void setModelType(MyopicModelType mt);

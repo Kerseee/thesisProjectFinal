@@ -14,6 +14,7 @@
 #include <chrono>
 #include <random>
 #include "src/data.hpp"
+#include "src/caseData.hpp"
 #include "src/planner.hpp"
 #include "src/experimentor.hpp"
 
@@ -47,8 +48,7 @@ int main(int argc, const char * argv[]) {
 
 void debug(){
     string folder = "";
-    cout << "Input folder name \n 
-             (Please add '\\' on windows or '/' on mac after the folder):\n";
+    cout << "Input folder name \n (Please add \"\\\" on windows or \"/\" on mac after the folder):\n";
     cin >> folder;
     cout << "\nTest function now...\n";
     data::CaseData data;

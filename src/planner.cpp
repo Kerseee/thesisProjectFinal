@@ -2583,19 +2583,16 @@ double MyopicPlanner::run(){
     double sum_rev = 0;
     int num_run = 0, sum_thd = 0;
     for(int e = 0; e < this->num_experiment_; e++){
-        // std::cout << "experiment " << e+1 << " start-------------------------------------------\n";
+        
         this->exper_id_ = e + 1;
         double revenue = this->experiment();
-        // std::cout << "DEBUG: experiment " << e+1 << "　結束-------------------------------------------\n";
+        
         sum_rev += revenue;
         this->revenues_.push_back(revenue);
         this->avg_revs_[e + 1] = sum_rev / (e + 1);
-        // std::cout << "DEBUG: Experiment " << e+1 << " | rev: " << revenue 
-        //           << " | avg_rev: " << this->avg_revs_.at(e+1) << "\n";
+
         num_run = e;
         if (e >= 1){
-            // std::cout << "結果： avg現在： " << this->avg_revs_.at(e + 1)
-            //           << "結果： avg前一個： " << this->avg_revs_.at(e) << "\n";
             double dif = abs(this->avg_revs_.at(e + 1) - this->avg_revs_.at(e));
             dif = dif / this->avg_revs_.at(e);
             
@@ -2604,20 +2601,14 @@ double MyopicPlanner::run(){
             } else {
                 sum_thd = 0;
             }
-            // std::cout << "exp: " << e+1 << " | rev: " << revenue 
-            //           << " | avg_rev: " << avg_revs_.at(e+1)
-            //           << " | dif: " << dif 
-            //           << " | sum_thd: " << sum_thd << "\n"; 
-            // std::cout << "e: " << e << " | 有 e+1 in avg_revs: " 
-            //           << (this->avg_revs_.find(e+1) != this->avg_revs_.end()) << "\n";
         }
+        
         if(sum_thd > this->early_stop_){
-            // std::cout << "提早結束囉！\n";
             break;
         }
         this->resetState();
     }
-    // std::cout << "要 return ㄌ，num_run = " << num_run << "\n";
+    
     return this->avg_revs_.at(num_run + 1);
 }
 
