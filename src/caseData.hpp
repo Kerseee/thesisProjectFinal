@@ -53,37 +53,6 @@ struct CaseData {
     void printAll();
 };
 
-// Order stores information of an order from a travel agency.
-struct Order {
-    int id;
-    double price;
-    std::set<int> request_days;
-    std::map<int, int> request_rooms;
-    std::map<tuple2d, double> upgrade_price;
-};
-
-// RandomOrderGenerator generate random orders from travel agencies.
-class RandomOrderGenerator {
-
-};
-
-// RandomIndDemandGenerator generate random demand from individual customers.
-class RandomIndDemandGenerator {
-
-};
-
-// Experimentor execute an experiment based on given data and random demands.
-class Experimentor {
-
-};
-
-
-class MyopicCasePlanner {
-
-};
-
-
-
 }
 
 #endif /* caseData_h */
