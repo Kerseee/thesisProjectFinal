@@ -1,2 +1,7 @@
 .vscode/*
 .ipynb_checkpoints/*
+workspace.code-workspace
+main
+main.exe
+main.dSYM/*
+debug/*
