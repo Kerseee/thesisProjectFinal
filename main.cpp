@@ -41,40 +41,20 @@ void testMyopicNC();
 void testMyopicBS();
 
 int main(int argc, const char * argv[]) {
-    // callMyopic(planner::MyopicMode::naive);
-    // callMyopic(planner::MyopicMode::smart);
-    // experimentor::PerformExpers();
-    // experimentor::PerformExpersMSSmart();
-    
-    // cout << "MD naive...\n";
-    // callMyopic(planner::MyopicModelType::ip, planner::MyopicMode::naive, 1000, true);
-    // cout << "MD smart...\n";
-    // callMyopic(planner::MyopicModelType::ip, planner::MyopicMode::smart, 1000, true);
-    // cout << "MS naive...\n";
-    // callMyopic(planner::MyopicModelType::sp, planner::MyopicMode::naive, 1000, true);
-    // cout << "MS smart...\n";
-    // callMyopic(planner::MyopicModelType::sp, planner::MyopicMode::smart, 1000, true);
-    // cout << "DP ...\n";
-    // callDP(false);
-    // int S, I, C, p, t, f;
-    // cin >> S >> I >> C >> p >> t >> f;
-    // experimentor::DebugMS(S, I, C, p, t, f);
-    testMyopicBS();
+    debug();
     return 0;
 }
 
 void debug(){
-    string s = "S5I3C25m10b70r2d25K10T10";
-    string param_path = "debug/data/params/" + s + "/1.txt";
-    string prob_path = "debug/data/prob/" + s + "/T10_1.txt";
-    data::Params params(param_path, prob_path);
-
-    planner::MyopicPlanner myopic(params, planner::MyopicMode::bs, planner::MyopicModelType::sp);
-    time_t start, end;
-    time(&start);
-    myopic.funcTest();
-    time(&end);
-    std::cout << "Time: " << difftime(end, start) << "\n";
+    string folder = "";
+    cout << "Input folder name \n 
+             (Please add '\\' on windows or '/' on mac after the folder):\n";
+    cin >> folder;
+    cout << "\nTest function now...\n";
+    data::CaseData data;
+    data.readAllData(folder);
+    data.printAll();
+    cout << "\nTest End!\n";
 }
 
 void testMyopicBS(){
