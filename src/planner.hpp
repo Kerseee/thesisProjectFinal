@@ -55,7 +55,6 @@ struct UpgradedOrder{
 };
 
 struct MyopicUpgradePlan{
-
     int id;         // index of this order
     State order;    // origin request
     State upgraded_order;    // order after upgraded

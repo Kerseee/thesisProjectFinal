@@ -41,15 +41,48 @@ struct CaseData {
     std::map<int, std::map<tuple2d, double> > prob_ind_demand;
     // prob_discount[{before, discount}] = prob
     std::map<tuple2d, double> prob_discount;
-    // price_ind[{room_typeservice_day}] = price
+    // price_ind[{room_type, service_day}] = price
     std::map<tuple2d, double> price_ind;
 
     /* Methods */
-    // Read all inputs in the folders.
+    // Read the metadata of this group of data. Called by readAllData()
     void readMetaData(const std::string& path);
+    // Read all inputs in the folders.
     void readAllData(const std::string& folder);
+    // Print all the data
     void printAll();
 };
+
+// Order stores information of an order from a travel agency.
+struct Order {
+    int id;
+    double price;
+    std::set<int> request_days;
+    std::map<int, int> request_rooms;
+    std::map<tuple2d, double> upgrade_price;
+};
+
+// RandomOrderGenerator generate random orders from travel agencies.
+class RandomOrderGenerator {
+
+};
+
+// RandomIndDemandGenerator generate random demand from individual customers.
+class RandomIndDemandGenerator {
+
+};
+
+// Experimentor execute an experiment based on given data and random demands.
+class Experimentor {
+
+};
+
+
+class MyopicCasePlanner {
+
+};
+
+
 
 }
 
