@@ -1,5 +1,5 @@
-#ifndef caseData_h
-#define caseData_h
+#ifndef caseData_hpp
+#define caseData_hpp
 
 #include <iostream>
 #include <map>
@@ -62,4 +62,4 @@ struct CaseData {
 
 }
 
-#endif /* caseData_h */
+#endif /* caseData_hpp */

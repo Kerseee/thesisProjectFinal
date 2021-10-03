@@ -18,7 +18,6 @@
 
 namespace planner {
 void createFolder(std::string path);
-    
 // Store state in the model.
 // In this problem this equals to available rooms.
 struct State{
