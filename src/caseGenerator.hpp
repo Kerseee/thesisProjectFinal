@@ -14,11 +14,15 @@ namespace planner{
 
 // Order stores information of an order from a travel agency.
 struct Order {
-    int id;
+    bool is_order;
     double price;
     std::set<int> request_days;
     std::map<int, int> request_rooms;
     std::map<data::tuple2d, double> upgrade_price;
+
+    Order();
+    Order(const Order& order);
+    Order& operator=(const Order& order);
 };
 
 class Generator {
@@ -74,5 +78,7 @@ public:
 };
 
 }
+
+std::ostream& operator<<(std::ostream& os, const planner::Order& order);
 
 #endif /* caseGenerator_hpp */
