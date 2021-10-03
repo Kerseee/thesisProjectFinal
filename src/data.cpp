@@ -21,18 +21,13 @@ Scale::Scale(){
     this->order_type = 0;
     this->booking_period = 0;
     this->service_period = 0;
-    this->booking_day = this->booking_period;
-    this->before = this->booking_day + this->service_period;
 }
 Scale::Scale(const int num_room_type, const int num_order_type,
-             const int num_booking_period, const int num_service_period,
-             const int before, const int booking_day){
+             const int num_booking_period, const int num_service_period){
     this->room_type = num_room_type;
     this->order_type = num_order_type;
     this->booking_period = num_booking_period;
     this->service_period = num_service_period;
-    this->before = before;
-    this->booking_day = booking_day;
 }
     
 Scale::Scale(const Scale& scale){
@@ -43,8 +38,6 @@ Scale& Scale::operator=(const Scale& scale){
     this->order_type = scale.order_type;
     this->booking_period = scale.booking_period;
     this->service_period = scale.service_period;
-    this->before = scale.before;
-    this->booking_day = scale.booking_day;
     return *this;
 }
 
@@ -205,13 +198,10 @@ void Params::print(){
 }// namespace data
 
 std::ostream& operator<<(std::ostream& os, const data::Scale& scale){
-    os << "before: " << scale.before << "\n"
-       << "room_type: " << scale.room_type << "\n"
-       << "booking_day: " << scale.booking_day << "\n"
+    os << "room_type: " << scale.room_type << "\n"
        << "booking_period: " << scale.booking_period << "\n"
        << "service_period: " << scale.service_period << "\n"
-       << "order_type: " << scale.order_type 
-       << " (Ignore this if running case study)\n";
+       << "order_type: " << scale.order_type;
     return os;
 }
 

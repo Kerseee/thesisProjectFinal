@@ -30,12 +30,27 @@ void tokenize(std::string const &str, const char delim,
 
 void fileOpenCheck(std::ifstream& input, const std::string& path);
 
-// Todo: 10/3 map 全改一維
+struct CaseScale {
+    int room_type;
+    int service_period;
+    int booking_period;
+    int before;
+    int booking_day;
+    int periods_per_day;
+    CaseScale();
+    CaseScale(const CaseScale& scale);
+    CaseScale& operator=(const CaseScale& scale);
+    
+    // refreshBookingVars() refresh the variables of booking stage
+    void refreshBookingVars(); 
+};
+
+
 // CaseData store all data in case study.
 struct CaseData {
     /* Variables */
     std::string folder;
-    Scale scale;
+    CaseScale scale;
 
     // Keys and values of following maps are shown after the statements.
     std::map<int, double> prob_before;      // prob_before[day] = prob
@@ -48,8 +63,10 @@ struct CaseData {
     std::map<int, std::map<int, std::map<int, double> > > prob_ind_demand;
     // prob_discount[before][discount] = prob
     std::map<int, std::map<int, double> > prob_discount;
+    
     // price_ind[{room_type, service_day}] = price
     std::map<tuple2d, double> price_ind;
+    std::map<int, int> capacity;
 
     /* Methods */
     // Read the metadata of this group of data. Called by readAllData()
@@ -61,5 +78,7 @@ struct CaseData {
 };
 
 }
+
+std::ostream& operator<<(std::ostream& os, const data::CaseScale& scale);
 
 #endif /* caseData_hpp */

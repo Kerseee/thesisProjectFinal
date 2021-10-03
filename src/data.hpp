@@ -32,12 +32,9 @@ struct Scale {
     int order_type;     //k
     int booking_period; //tau
     int service_period; //delta, equals to service_day
-    int before;
-    int booking_day;
     Scale();
     Scale(const int num_room_type, const int num_order_type,
-          const int num_booking_period, const int num_service_period,
-          const int before, const int booking_day);
+          const int num_booking_period, const int num_service_period);
     Scale(const Scale& scale);
     Scale& operator=(const Scale& scale);
 };

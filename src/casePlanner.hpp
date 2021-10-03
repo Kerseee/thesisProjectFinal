@@ -49,6 +49,7 @@ public:
 // Deterministic planner
 class DeterExperimentor: public virtual Experimentor{
 protected:
+
     // findOptPlan modify the given plan, considering the demand we guess. 
     // This problem is formulated in an integer programming problem in this function.
     void findOptPlan(const int period, MyopicUpgradePlan& plan, 

@@ -136,16 +136,48 @@ void readCsv(const std::string path, std::map<tuple2d, double>& container){
     input.close();
 }
 
+CaseScale::CaseScale() {
+    this->room_type = 0;
+    this->service_period = 0;
+    this->booking_period = 0;
+    this->before = 0;
+    this->booking_day = 0;
+    this->periods_per_day = 0;
+}
+
+CaseScale::CaseScale(const CaseScale& scale){
+    operator=(scale);
+}
+
+CaseScale& CaseScale::operator=(const CaseScale& scale){
+    this->room_type = scale.room_type;
+    this->booking_period = scale.booking_period;
+    this->service_period = scale.service_period;
+    this->before = scale.before;
+    this->booking_day = scale.booking_day;
+    this->periods_per_day = scale.periods_per_day;
+    return *this;
+}
+
+void CaseScale::refreshBookingVars(){
+    this->booking_day = this->before - this->service_period + 1;
+    this->booking_period = this->booking_day * this->periods_per_day;
+}
+
 void CaseData::readMetaData(const std::string& path){
     std::ifstream input(path);
     std::string item;
     // Check if file is open
     fileOpenCheck(input, path);
-    input >> item >> this->scale.before
-          >> item >> this->scale.room_type
-          >> item >> this->scale.booking_day
-          >> item >> this->scale.booking_period
-          >> item >> this->scale.service_period;
+    input >> item >> this->scale.room_type
+          >> item >> this->scale.before
+          >> item >> this->scale.periods_per_day
+          >> item >> this->scale.service_period
+          >> item;
+    this->scale.refreshBookingVars();
+    for(int i = 1; i <= scale.room_type; i++){
+        input >> this->capacity[i];
+    }
 }
 
 // Read all inputs in the folders.
@@ -178,6 +210,7 @@ void CaseData::readAllData(const std::string& folder){
     // Read probs of price for individual customers
     readCsv(folder + "p_si.csv", this->price_ind);
 }
+
 void CaseData::printAll(){
     std::cout << "Input folder: " << this->folder << "\n"
         << "Scale ----------------------------------------------------\n"
@@ -197,7 +230,19 @@ void CaseData::printAll(){
     std::cout << "Discount ----------------------------------------------------\n"
         << this->prob_discount << "\n"
         << "price ----------------------------------------------------\n"
-        << this->price_ind << "\n";
+        << this->price_ind << "\n"
+        << "capacity ----------------------------------------------------\n"
+        << this->capacity << "\n";
 }
 
+}
+
+std::ostream& operator<<(std::ostream& os, const data::CaseScale& scale){
+    os << "room_type: " << scale.room_type << "\n"
+       << "before: " << scale.before << "\n"
+       << "periods_per_day: " << scale.periods_per_day << "\n"
+       << "booking_day: " << scale.booking_day << "\n"
+       << "booking_period: " << scale.booking_period << "\n"
+       << "service_period: " << scale.service_period << "\n";
+    return os;
 }
