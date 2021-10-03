@@ -61,6 +61,46 @@ void readCsv(const std::string path, std::map<int, double>& container){
 
 // readCsv() read data from path given number of rows and columns,
 // and then store things into container.
+void readCsv(const std::string path, 
+             std::map<int, std::map<int, double> >& container){
+    std::ifstream input(path);
+    std::string line;
+
+    // Check if file is open
+    fileOpenCheck(input, path);
+
+    bool readTitle = true;
+    std::vector<int> columns;
+    while(std::getline(input, line, '\n')){
+        // Tokenize
+        std::vector<std::string> vec;
+        tokenize(line, ',', vec);
+
+        // Store titles of columns
+        if(readTitle){
+            // for title of indexs
+            columns.push_back(0);
+            for(int i = 1; i < vec.size(); i++){
+                columns.push_back(std::stoi(vec[i]));
+            }
+            readTitle = false;
+            continue;
+        }
+
+        // Put tokenized data into map
+        int row_id = std::stoi(vec[0]);
+        std::map<int, double> row_container;
+        for(int i = 1; i < vec.size(); i++){
+            int col_id = columns[i];
+            row_container[col_id] = std::stod(vec[i]);
+        }
+        container[row_id] = row_container;
+    }
+    input.close();
+}
+
+// readCsv() read data from path given number of rows and columns,
+// and then store things into container.
 void readCsv(const std::string path, std::map<tuple2d, double>& container){
     std::ifstream input(path);
     std::string line;

@@ -96,6 +96,7 @@ std::ostream& operator<<(std::ostream& os, const std::map<int, int>& m);
 std::ostream& operator<<(std::ostream& os, const std::map<int, double>& m);
 std::ostream& operator<<(std::ostream& os, const std::map<int, data::price>& m);
 std::ostream& operator<<(std::ostream& os, const std::map<int, std::set<int> >& m);
+std::ostream& operator<<(std::ostream& os, const std::map<int, std::map<int, double> >& m);
 
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec);

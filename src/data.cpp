@@ -345,6 +345,13 @@ std::ostream& operator<<(std::ostream& os, const std::map<int, double>& m){
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const std::map<int, std::map<int, double> >& m){
+    for(auto& e: m){
+        os << "{" << e.first << ":" << e.second << "}\n";
+    }
+    return os;
+}
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec){
     for(auto& e: vec){
