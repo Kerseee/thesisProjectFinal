@@ -1,6 +1,28 @@
 日期：10/3（六）
 
 TODO:
-- 規劃 casePlanner
-- implement caseGenerator
-- implement casePlanner
+- 規劃 casePlanner 架構（Ｖ）
+- 寫 caseGenerator function 的 pseudocode (V)
+
+- Implement CaseScale 裡的所有 function 都加上 booking_period_day
+- Implement CaseScale::isValidDay
+
+- Implement Generator
+
+- Implement OrderGenerator constructors
+- Implement OrderGenerator private methods
+- Implement OrderGenerator::generateOrder
+
+- Implement IndDemandGenerator constructors
+- Implement IndDemandGenerator private methods
+- Implement IndDemandGenerator::generateIndDemand
+
+================================================================================================
+Next:
+- 寫 casePlanner function 的 pseudocode (V)
+- Implement casePlanner
+
+================================================================================================
+選做：
+- 寫 CaseData 的 checker
+- 寫 Generator 們的 store、debug

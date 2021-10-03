@@ -37,12 +37,21 @@ struct CaseScale {
     int before;
     int booking_day;
     int periods_per_day;
+    
+    // TODO 10/3
+    std::map<int, int> booking_period_day;
+
     CaseScale();
     CaseScale(const CaseScale& scale);
     CaseScale& operator=(const CaseScale& scale);
     
     // refreshBookingVars() refresh the variables of booking stage
-    void refreshBookingVars(); 
+    void refreshBookingVars();
+
+    // TODO 10/3
+    // Check if given day is in service period
+    bool isValidDay(const int day);
+
 };
 
 

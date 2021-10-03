@@ -25,11 +25,12 @@ struct Order {
     Order& operator=(const Order& order);
 };
 
+// TODO 10/3
 class Generator {
 public:
     // Generate a random number from the given distribution.
     // input: dist[value] = probability
-    int random(std::map<int, double> dist);
+    int random(const std::map<int, double>& dist);
 };
 
 // OrderGenerator generate random orders from travel agencies.
@@ -39,11 +40,12 @@ private:
     const data::CaseData* data_;
 
     /* Private methods */
-    int randomBefore();
-    int randomNight(const int before);
-    double randomDiscount(const int before);
-    int randomNumRooms(const int before);
-    double getPrice(const double discount);
+    // TODO 10/3
+    int getCheckIn(const int before);
+    int getCheckOut(const int check_in, const int night);
+    std::set<int> getRequestDays(const int check_in, const int check_out);
+    double getPrice(std::set<int> days, double discount);
+    std::map<data::tuple2d, double> getUpgradeFee(double discount);
 
 public:
     OrderGenerator();
@@ -56,13 +58,18 @@ public:
     std::map<int, Order> generate();
     // generate(num_experiments) generates groups of orders from travel agencies
     // for the whole booking stage for multiple experiments.
-    std::map<int, std::map<int, State> > generate(const int num_experiments);
+    std::map<int, std::map<int, Order> > generate(const int num_experiments);
 };
 
 // IndDemandGenerator generate random demand from individual customers.
 class IndDemandGenerator: public Generator {
 private:
     const data::CaseData* data_;
+
+    // TODO
+    // getBefore return "before" given booking and service period.
+    int getBefore(const int booking_period, const int service_period);
+
 public:
     IndDemandGenerator();
     IndDemandGenerator(const data::CaseData& data);
