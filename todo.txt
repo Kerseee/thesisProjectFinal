@@ -1,0 +1,6 @@
+日期：10/3（六）
+
+TODO:
+- 規劃 casePlanner
+- implement caseGenerator
+- implement casePlanner
