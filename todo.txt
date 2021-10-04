@@ -9,9 +9,10 @@ TODO:
 
 - Implement Generator (V)
 
-- Implement OrderGenerator constructors
-- Implement OrderGenerator private methods
-- Implement OrderGenerator::generateOrder
+- Implement OrderGenerator constructors (V)
+- Implement OrderGenerator private methods (V)
+- Implement OrderGenerator::generateOrder (V)
+- Write map key checker (V)
 
 - Implement IndDemandGenerator constructors
 - Implement IndDemandGenerator private methods

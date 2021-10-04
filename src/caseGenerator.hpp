@@ -18,7 +18,7 @@ struct Order {
     double price;
     std::set<int> request_days;
     std::map<int, int> request_rooms;
-    std::map<data::tuple2d, double> upgrade_price;
+    std::map<data::tuple2d, double> upgrade_fees;
 
     Order();
     Order(const Order& order);
@@ -41,11 +41,26 @@ private:
     const data::CaseData* data_;
 
     /* Private methods */
-    int getCheckIn(const int before);
+    // getCheckIn return the day of check-in given period and before
+    int getCheckIn(const int period, const int before);
+
+    // getCheckOut return the day of check-out given check-in and night
     int getCheckOut(const int check_in, const int night);
+
+    // getRequestDays return set of requested days given check_in and check_out
     std::set<int> getRequestDays(const int check_in, const int check_out);
-    double getPrice(std::set<int> days, double discount);
-    std::map<data::tuple2d, double> getUpgradeFee(double discount);
+
+    // getPrice return the total price of an order after discount
+    // Inputs: rooms[room_type] = num
+    double getPrice(const std::map<int, int>& rooms,
+        const std::set<int>& days, const double discount);
+    
+    // getUpgradeFee return the upgrade fee of given discount
+    // Output: upgrade_fee[{from, to}] = price
+    // Please note that upgrade fee may be negative if price of upper level room
+    // is lower than lower level room.
+    std::map<data::tuple2d, double> getUpgradeFee(
+        const std::set<int>& days, double discount);
 
 public:
     OrderGenerator();
@@ -61,6 +76,9 @@ public:
     std::map<int, std::map<int, Order> > generate(const int num_experiments);
     // Print the data in this OrderGenerator
     void printData();
+
+    // For debug 
+    void testFunc();
 };
 
 // IndDemandGenerator generate random demand from individual customers.

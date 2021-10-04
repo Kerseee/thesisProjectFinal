@@ -169,7 +169,7 @@ void CaseScale::refreshBookingVars(){
 }
 
 // Check if given day is in service stage
-bool CaseScale::isValidDay(int day){
+bool CaseScale::isServiceDay(int day) const{
     return day >= 1 && day <= this->service_period;
 }
 
@@ -190,6 +190,17 @@ void CaseData::readMetaData(const std::string& path){
     // Read capacities
     for(int i = 1; i <= scale.room_type; i++){
         input >> this->capacity[i];
+    }
+}
+
+// Refresh variables about upgrade information. Called by readAllData()
+void CaseData::refreshUpgradeInfo(){
+    for(int i = 1; i <= this->scale.room_type; i++){
+        for(int j = i + 1; j <= this->scale.room_type; j++){
+            this->upgrade_upper[i].insert(j);
+            this->upgrade_lower[j].insert(i);
+            this->upgrade_pairs.insert({i, j});
+        }
     }
 }
 
@@ -220,8 +231,11 @@ void CaseData::readAllData(const std::string& folder){
     // Read probs of discount
     readCsv(folder + "discount_prob.csv", this->prob_discount);
 
-    // Read probs of price for individual customers
+    // Read price for individual customers
     readCsv(folder + "p_si.csv", this->price_ind);
+
+    // Refresh the upgrade information
+    this->refreshUpgradeInfo();
 }
 
 void CaseData::printAll() const {
@@ -246,6 +260,13 @@ void CaseData::printAll() const {
         << this->price_ind << "\n"
         << "capacity ----------------------------------------------------\n"
         << this->capacity << "\n";
+    
+    std::cout << "upgrade to upper ----------------------------------------------------\n"
+        << this->upgrade_upper << "\n"
+        << "upgrade from lower ----------------------------------------------------\n"
+        << this->upgrade_lower << "\n"
+        << "upgrade pairs ----------------------------------------------------\n"
+        << this->upgrade_pairs << "\n";
 }
 
 }

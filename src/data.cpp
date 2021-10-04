@@ -294,6 +294,15 @@ std::ostream& operator<<(std::ostream& os, const std::set<int>& s){
     os << "}";
     return os;
 }
+
+std::ostream& operator<<(std::ostream& os, const std::set<data::tuple2d>& s){
+    os << "{";
+    for(auto& e: s){
+        os << e << ",";
+    }
+    os << "}";
+    return os;
+}
 std::ostream& operator<<(std::ostream& os, const std::map<int, std::set<int>>& m){
     os << "{";
     for(auto& s: m){

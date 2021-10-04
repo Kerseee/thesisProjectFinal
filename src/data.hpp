@@ -80,6 +80,7 @@ std::ostream& operator<<(std::ostream& os, const data::tuple2d& tup);
 std::ostream& operator<<(std::ostream& os, const data::tuple3d& tup);
 std::ostream& operator<<(std::ostream& os, const data::tuple4d& tup);
 std::ostream& operator<<(std::ostream& os, const std::set<int>& s);
+std::ostream& operator<<(std::ostream& os, const std::set<data::tuple2d>& s);
 std::ostream& operator<<(std::ostream& os, const std::map<data::tuple2d, int>& m);
 std::ostream& operator<<(std::ostream& os, const std::map<data::tuple3d, int>& m);
 std::ostream& operator<<(std::ostream& os, const std::map<data::tuple4d, int>& m);

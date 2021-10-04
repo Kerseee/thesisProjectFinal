@@ -57,11 +57,17 @@ void debug(){
     cout << "\nReading data...\n";
     data::CaseData data;
     data.readAllData(folder);
+    cout << data.scale;
     
     // Test functions
-    cout << "\n Test planner::OrderGenerator constructors\n";
+    cout << "\n Test planner::OrderGenerator::generateOrder\n";
     planner::OrderGenerator order_gen(data);
-    order_gen.printData();
+    cout << "Input period: \n";
+    int period = 0;
+    cin >> period;
+    cout << data.price_ind << "\n";
+    planner::Order order = order_gen.generateOrder(period);
+    cout << order;
 
     cout << "\nTest End!\n";
 }

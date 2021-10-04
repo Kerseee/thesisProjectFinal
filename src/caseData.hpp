@@ -48,9 +48,8 @@ struct CaseScale {
     // refreshBookingVars() refresh the variables about booking stage
     void refreshBookingVars();
 
-    // TODO 10/3
     // Check if given day is in service stage
-    bool isValidDay(const int day);
+    bool isServiceDay(const int day) const;
 };
 
 
@@ -72,13 +71,20 @@ struct CaseData {
     // prob_discount[before][discount] = prob
     std::map<int, std::map<int, double> > prob_discount;
     
-    // price_ind[{room_type, service_day}] = price
+    // price_ind[{service_day, room_type}] = price
     std::map<tuple2d, double> price_ind;
     std::map<int, int> capacity;
+
+    // upgrade info
+    std::map<int, std::set<int> > upgrade_upper;
+    std::map<int, std::set<int> > upgrade_lower;
+    std::set<tuple2d> upgrade_pairs;
 
     /* Methods */
     // Read the metadata of this group of data. Called by readAllData()
     void readMetaData(const std::string& path);
+    // Refresh variables about upgrade information. Called by readAllData()
+    void refreshUpgradeInfo();
     // Read all inputs in the folders.
     void readAllData(const std::string& folder);
     // Print all the data
