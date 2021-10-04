@@ -29,8 +29,9 @@ struct Order {
 class Generator {
 public:
     // Generate a random number from the given distribution.
-    // input: dist[value] = probability
-    int random(const std::map<int, double>& dist);
+    // May return 0 if sum of probabilities from given distribution is not equal 1 
+    // input: dist[value] = probability, seed = an unsigned number
+    int random(const std::map<int, double>& dist, const unsigned seed);
 };
 
 // OrderGenerator generate random orders from travel agencies.

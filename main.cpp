@@ -14,9 +14,10 @@
 #include <chrono>
 #include <random>
 #include "src/data.hpp"
-#include "src/caseData.hpp"
 #include "src/planner.hpp"
 #include "src/experimentor.hpp"
+#include "src/caseData.hpp"
+#include "src/caseGenerator.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -53,16 +54,19 @@ void debug(){
     cin >> folder;
     
     // Build CaseData
-    cout << "\nTest function now...\n";
+    cout << "\nReading data...\n";
     data::CaseData data;
     data.readAllData(folder);
     
     // Test functions
-    cout << data.scale;
-    cout << "\nInput day to test if it is valid\n";
-    int day;
-    cin >> day;
-    cout << "\nvalid: " << data.scale.isValidDay(day);
+    cout << "\n Test planner::Generator::random:\n";
+    cout << "Please input unsigned seed:\n";
+    int seed = 0;
+    cin >> seed;
+    planner::Generator gen;
+    int rand_result = gen.random(data.prob_before, seed);
+    cout << "Rand result is: " << rand_result;
+    
     cout << "\nTest End!\n";
 }
 

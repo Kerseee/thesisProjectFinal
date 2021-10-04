@@ -3,6 +3,8 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include <chrono>
+#include <random>
 #include "data.hpp"
 #include "caseData.hpp"
 #include "planner.hpp"
@@ -28,12 +30,25 @@ Order& Order::operator=(const Order& order){
     return *this;
 }
 
-// TODO
 // Generate a random number from the given distribution.
-// input: dist[value] = probability
-int Generator::random(const std::map<int, double>& dist){
-    int num = 0;
-    return num;
+// May return 0 if sum of probabilities from given distribution is not equal 1 
+// input: dist[value] = probability, seed = an unsigned number
+int Generator::random(const std::map<int, double>& dist, const unsigned seed){
+    
+    // Random an probability from uniform distribution in [0, 1]
+    std::default_random_engine generator (seed);
+    std::uniform_real_distribution<double> distribution (0.0, 1.0);
+    double prob = distribution(generator);
+
+    // Return the part that prob locates in.
+    double cumulator = 0;
+    for(auto& d: dist){
+        cumulator += d.second;
+        if(prob <= cumulator) return d.first;
+    }
+
+    // If not find any match then return 0
+    return 0;
 }
 
 // generateOrder generate an order node 
@@ -41,9 +56,9 @@ Order OrderGenerator::generateOrder(const int period){
     Order order;
 
     // Generate before
-    int before = this->random(this->data_->prob_before);
+        // int before = this->random(this->data_->prob_before);
     // Generate night
-    int night = this->random(this->data_->prob_night.at(before));
+        // int night = this->random(this->data_->prob_night.at(before));
     // Compute check_in
         // int check_in = this->getCheckIn(before);
     // Compute checkout
