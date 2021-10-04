@@ -82,7 +82,7 @@ struct CaseData {
     // Read all inputs in the folders.
     void readAllData(const std::string& folder);
     // Print all the data
-    void printAll();
+    void printAll() const;
 };
 
 }

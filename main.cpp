@@ -59,14 +59,10 @@ void debug(){
     data.readAllData(folder);
     
     // Test functions
-    cout << "\n Test planner::Generator::random:\n";
-    cout << "Please input unsigned seed:\n";
-    int seed = 0;
-    cin >> seed;
-    planner::Generator gen;
-    int rand_result = gen.random(data.prob_before, seed);
-    cout << "Rand result is: " << rand_result;
-    
+    cout << "\n Test planner::OrderGenerator constructors\n";
+    planner::OrderGenerator order_gen(data);
+    order_gen.printData();
+
     cout << "\nTest End!\n";
 }
 

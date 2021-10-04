@@ -224,7 +224,7 @@ void CaseData::readAllData(const std::string& folder){
     readCsv(folder + "p_si.csv", this->price_ind);
 }
 
-void CaseData::printAll(){
+void CaseData::printAll() const {
     std::cout << "Input folder: " << this->folder << "\n"
         << "Scale ----------------------------------------------------\n"
         << this->scale << "\n"
@@ -232,13 +232,13 @@ void CaseData::printAll(){
         << this->prob_before << "\n"
         << "night ----------------------------------------------------\n"
         << this->prob_night << "\n";
-    for(int i = 1; i <= this->scale.room_type; i++){
-        std::cout << "request of room " << i << ":\n"
-            << this->prob_request[i] << "\n";
+    for(auto& request: this->prob_request){
+        std::cout << "request of room " << request.first << ":\n"
+            << request.second << "\n";
     }
-    for(int i = 1; i <= this->scale.room_type; i++){
-        std::cout << "demand of ind " << i << ":\n"
-            << this->prob_ind_demand[i] << "\n";
+    for(auto& demand: this->prob_ind_demand){
+        std::cout << "demand of ind " << demand.first << ":\n"
+            << demand.second << "\n";
     }
     std::cout << "Discount ----------------------------------------------------\n"
         << this->prob_discount << "\n"

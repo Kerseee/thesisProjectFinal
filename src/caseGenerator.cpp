@@ -51,6 +51,18 @@ int Generator::random(const std::map<int, double>& dist, const unsigned seed){
     return 0;
 }
 
+OrderGenerator::OrderGenerator(){
+    ;
+}
+OrderGenerator::OrderGenerator(const data::CaseData& data){
+    this->data_ = &data;
+}
+
+// Print the data in this OrderGenerator
+void OrderGenerator::printData(){
+    this->data_->printAll();
+}
+
 // generateOrder generate an order node 
 Order OrderGenerator::generateOrder(const int period){
     Order order;

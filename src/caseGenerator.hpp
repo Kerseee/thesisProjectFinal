@@ -25,7 +25,6 @@ struct Order {
     Order& operator=(const Order& order);
 };
 
-// TODO 10/3
 class Generator {
 public:
     // Generate a random number from the given distribution.
@@ -34,6 +33,7 @@ public:
     int random(const std::map<int, double>& dist, const unsigned seed);
 };
 
+// TODO 10/3
 // OrderGenerator generate random orders from travel agencies.
 class OrderGenerator: public Generator {
 private:
@@ -41,7 +41,6 @@ private:
     const data::CaseData* data_;
 
     /* Private methods */
-    // TODO 10/3
     int getCheckIn(const int before);
     int getCheckOut(const int check_in, const int night);
     std::set<int> getRequestDays(const int check_in, const int check_out);
@@ -60,6 +59,8 @@ public:
     // generate(num_experiments) generates groups of orders from travel agencies
     // for the whole booking stage for multiple experiments.
     std::map<int, std::map<int, Order> > generate(const int num_experiments);
+    // Print the data in this OrderGenerator
+    void printData();
 };
 
 // IndDemandGenerator generate random demand from individual customers.
