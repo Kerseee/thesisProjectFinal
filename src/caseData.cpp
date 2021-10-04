@@ -160,11 +160,17 @@ CaseScale& CaseScale::operator=(const CaseScale& scale){
     return *this;
 }
 
+// refreshBookingVars() refresh the variables about booking stage
 void CaseScale::refreshBookingVars(){
     this->booking_period = (this->booking_day + 1) * this->periods_per_day;
     for(int t = 1; t <= this->booking_period; t++){
         this->booking_period_day[t] = (t - 1) / this->periods_per_day;
     }
+}
+
+// Check if given day is in service stage
+bool CaseScale::isValidDay(int day){
+    return day >= 1 && day <= this->service_period;
 }
 
 void CaseData::readMetaData(const std::string& path){

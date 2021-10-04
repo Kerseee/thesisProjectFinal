@@ -45,13 +45,12 @@ struct CaseScale {
     CaseScale(const CaseScale& scale);
     CaseScale& operator=(const CaseScale& scale);
     
-    // refreshBookingVars() refresh the variables of booking stage
+    // refreshBookingVars() refresh the variables about booking stage
     void refreshBookingVars();
 
     // TODO 10/3
-    // Check if given day is in service period
+    // Check if given day is in service stage
     bool isValidDay(const int day);
-
 };
 
 

@@ -47,13 +47,22 @@ int main(int argc, const char * argv[]) {
 }
 
 void debug(){
+    // Input folders
     string folder = "";
     cout << "Input folder name \n (Please add \"\\\" on windows or \"/\" on mac after the folder):\n";
     cin >> folder;
+    
+    // Build CaseData
     cout << "\nTest function now...\n";
     data::CaseData data;
     data.readAllData(folder);
-    data.printAll();
+    
+    // Test functions
+    cout << data.scale;
+    cout << "\nInput day to test if it is valid\n";
+    int day;
+    cin >> day;
+    cout << "\nvalid: " << data.scale.isValidDay(day);
     cout << "\nTest End!\n";
 }
 
