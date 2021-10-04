@@ -1,5 +1,6 @@
 room_type 3
 before 60
+booking_days 30
 periods_per_day 6
 service_period 30
 room_num 25 25 25

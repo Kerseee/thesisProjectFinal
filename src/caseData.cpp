@@ -156,12 +156,15 @@ CaseScale& CaseScale::operator=(const CaseScale& scale){
     this->before = scale.before;
     this->booking_day = scale.booking_day;
     this->periods_per_day = scale.periods_per_day;
+    this->booking_period_day = scale.booking_period_day;
     return *this;
 }
 
 void CaseScale::refreshBookingVars(){
-    this->booking_day = this->before - this->service_period + 1;
-    this->booking_period = this->booking_day * this->periods_per_day;
+    this->booking_period = (this->booking_day + 1) * this->periods_per_day;
+    for(int t = 1; t <= this->booking_period; t++){
+        this->booking_period_day[t] = (t - 1) / this->periods_per_day;
+    }
 }
 
 void CaseData::readMetaData(const std::string& path){
@@ -169,12 +172,16 @@ void CaseData::readMetaData(const std::string& path){
     std::string item;
     // Check if file is open
     fileOpenCheck(input, path);
+    // Read meta data
     input >> item >> this->scale.room_type
           >> item >> this->scale.before
+          >> item >> this->scale.booking_day
           >> item >> this->scale.periods_per_day
           >> item >> this->scale.service_period
           >> item;
+    // Refresh variables about booking stages
     this->scale.refreshBookingVars();
+    // Read capacities
     for(int i = 1; i <= scale.room_type; i++){
         input >> this->capacity[i];
     }
@@ -243,6 +250,7 @@ std::ostream& operator<<(std::ostream& os, const data::CaseScale& scale){
        << "periods_per_day: " << scale.periods_per_day << "\n"
        << "booking_day: " << scale.booking_day << "\n"
        << "booking_period: " << scale.booking_period << "\n"
-       << "service_period: " << scale.service_period << "\n";
+       << "service_period: " << scale.service_period << "\n"
+       << "booking_period_day: " << scale.booking_period_day << "\n"; 
     return os;
 }

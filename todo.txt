@@ -1,8 +1,8 @@
-日期：10/3（六）
+日期：10/4（六）
 
 TODO:
-- 規劃 casePlanner 架構（Ｖ）
-- 寫 caseGenerator function 的 pseudocode (V)
+- CaseScale 多吃 booking_day (V)
+- CaseScale 讓 before 不一定要 cover 到全部 (V)
 
 - Implement CaseScale 裡的所有 function 都加上 booking_period_day
 - Implement CaseScale::isValidDay
@@ -19,7 +19,7 @@ TODO:
 
 ================================================================================================
 Next:
-- 寫 casePlanner function 的 pseudocode (V)
+- 寫 casePlanner function 的 pseudocode
 - Implement casePlanner
 
 ================================================================================================

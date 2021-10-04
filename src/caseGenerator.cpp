@@ -49,8 +49,9 @@ Order OrderGenerator::generateOrder(const int period){
     // Compute checkout
         // int check_out = this->getCheckout(check_in, night);
 
-    // Check if checkin or checkout is valid
-        /* if(!this->data_->isValidDay(check_out)){
+    // Check if checkin and checkout is valid
+        /* if(!this->data_->isValidDay(check_in) ||
+              !this->data_->isValidDay(check_out)){
             order.is_order = false;
             return order;
         }*/
@@ -99,7 +100,7 @@ State IndDemandGenerator::generateDemand(const int period){
 
     for(int r = 1; r <= this->data_->scale.room_type; r++){
         for(int s = 1; s <= this->data_->scale.service_period; s++){
-            
+
             // Compute the true before to generate
                 // int before = this->getBefore(period, s);
             // Generate demand

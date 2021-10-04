@@ -17,7 +17,6 @@ namespace planner {
 class Experimentor {
 protected:
     /* Variables */
-    const data::CaseData* data_;    // A data copy
     State state_;                   // States in one experiment
     double revenue;
 
@@ -49,6 +48,8 @@ public:
 // Deterministic planner
 class DeterExperimentor: public virtual Experimentor{
 protected:
+    /* Variables */
+    const data::CaseData* data_;    // A data copy
 
     // findOptPlan modify the given plan, considering the demand we guess. 
     // This problem is formulated in an integer programming problem in this function.
@@ -62,6 +63,9 @@ public:
 // Stochastic planner
 class StochExperimentor: public virtual Experimentor{
 protected:
+    /* Variables */
+    const data::CaseData* data_;    // A data copy 
+    
     // findOptPlan modify the given plan, considering the demand we guess. 
     // This problem is formulated in an stochastic programming problem in this function.
     void findOptPlan(const int period, MyopicUpgradePlan& plan, 
@@ -76,6 +80,8 @@ public:
 // Adjusted planner
 class AdjExperimentor: public virtual Experimentor {
 protected:
+    /* Variables */
+    const data::CaseData* data_;    // A data copy
     // findBaseline find the baseline in bs mode
     double findBaseline(const int period, const MyopicUpgradePlan& plan, 
                         const State& state);
