@@ -169,8 +169,44 @@ void CaseScale::refreshBookingVars(){
 }
 
 // Check if given day is in service stage
-bool CaseScale::isServiceDay(int day) const{
+bool CaseScale::isServicePeriod(int day) const{
     return day >= 1 && day <= this->service_period;
+}
+
+// Check if given day is in booking stage
+bool CaseScale::isBookingDay(const int day) const{
+    return day >= 0 && day <= this->booking_day;
+}
+
+// Check if given day is in booking stage
+bool CaseScale::isBookingPeriod(const int period) const{
+    return period >= 1 && period <= this->booking_period;
+}
+
+// getBookingDay return the booking day given booking period
+int CaseScale::getBookingDay(const int booking_period) const {
+    if(!this->isBookingPeriod(booking_period)) return -1;
+    int booking_day = (booking_period - 1) / this->periods_per_day;
+    return booking_day;
+}
+// getServicePeriod return the serice period given booking day and before.
+int CaseScale::getServicePeriod(
+    const int booking_day, const int before) const 
+{
+    if(!this->isBookingDay(booking_day) || before < 0) return -1;
+    return before - booking_day + 1;
+}
+
+// getBefore return the before given booking day and service period.
+int CaseScale::getBefore(
+    const int booking_day, const int service_period) const
+{
+    if(!this->isBookingDay(booking_day) || 
+       !this->isBookingPeriod(service_period)
+    ){
+        return -1;
+    }
+    return booking_day + service_period - 1;
 }
 
 void CaseData::readMetaData(const std::string& path){

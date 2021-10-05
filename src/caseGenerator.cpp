@@ -72,17 +72,9 @@ void OrderGenerator::printData(){
 
 // getCheckIn return the day of check-in given period and before
 int OrderGenerator::getCheckIn(const int period, const int before){
-    // Check if period is in booking_period_day
-    std::map<int, int>::const_iterator it;
-    it = this->data_->scale.booking_period_day.find(period);
-    if(it == this->data_->scale.booking_period_day.end()){
-        std::cout << "Error in OrderGenerator::getCheckIn: Period" 
-            << period << " not exist!\n";
-        exit(1);
-    }
-
-    int booking_day = it->second;
-    return before - booking_day + 1;
+    int booking_day = this->data_->scale.getBookingDay(period);
+    int check_in = this->data_->scale.getServicePeriod(booking_day, before);
+    return check_in;
 }
 
 // getCheckOut return the day of check-out given check-in and night
@@ -174,6 +166,7 @@ std::map<data::tuple2d, double> OrderGenerator::getUpgradeFee(
 // generateOrder generate an order node 
 Order OrderGenerator::generateOrder(const int period){
     Order order;
+    if(!this->data_->scale.isBookingPeriod(period)) return order;
     
     // For debug
     std::string err_prefix = "Error in OrderGenerator::generateOrder: ";
@@ -201,9 +194,9 @@ Order OrderGenerator::generateOrder(const int period){
     // Compute checkout
     int check_out = this->getCheckOut(check_in, night);
 
-    // Check if checkin and checkout is valid
-    if(!this->data_->scale.isServiceDay(check_in) ||
-       !this->data_->scale.isServiceDay(check_out)
+    // If checkin or checkout is not valid then return an empty order
+    if(!this->data_->scale.isServicePeriod(check_in) ||
+       !this->data_->scale.isServicePeriod(check_out)
     ){
         order.is_order = false;
         return order;
@@ -273,19 +266,49 @@ std::map<int, std::map<int, Order> > OrderGenerator::generate(const int num_expe
 }
 
 
+IndDemandGenerator::IndDemandGenerator(){
+    ;
+}
+
+IndDemandGenerator::IndDemandGenerator(const data::CaseData& data){
+    this->data_ = &data;
+}
+
 // generateDemand generate an demand node 
 State IndDemandGenerator::generateDemand(const int period){
     State state;
+    if(!this->data_->scale.isBookingPeriod(period)) return state;
 
+    // For debug
+    std::string err_prefix = "Error in IndDemandGenerator::GenerateDemand: ";
+    std::string err_suffix = " not exist!\n";
+
+    // Generate seed
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    srand(seed);
+
+    // Generate demands
     for(int r = 1; r <= this->data_->scale.room_type; r++){
         for(int s = 1; s <= this->data_->scale.service_period; s++){
-
             // Compute the true before to generate
-                // int before = this->getBefore(period, s);
-            // Generate demand
-                // state.rooms[s, r] = this->random(
-                //     this->data_->prob_ind_demand.at(r).at(before));
+            int booking_day = this->data_->scale.getBookingDay(period);
+            int before = this->data_->scale.getBefore(booking_day, s);
             
+            // Find the demand distribution with given room, service period
+            auto it = this->data_->prob_ind_demand.find(r);
+            if(it == this->data_->prob_ind_demand.end()){
+                std::cout << err_prefix << "Room " << r << err_suffix;
+                exit(1);
+            }
+            auto it_demand_at_r = it->second.find(before);
+
+            // Generate random demand for room r on service period s
+            // If distribution not found then let demand be 0.
+            int num_room = 0;
+            if(it_demand_at_r != it->second.end()){
+                num_room = this->random(it_demand_at_r->second, rand());
+            }
+            state.rooms[{s, r}] = num_room;            
         }
     }
     return state;

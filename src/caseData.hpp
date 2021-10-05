@@ -49,7 +49,21 @@ struct CaseScale {
     void refreshBookingVars();
 
     // Check if given day is in service stage
-    bool isServiceDay(const int day) const;
+    bool isServicePeriod(const int day) const;
+    // Check if given day is in booking stage
+    bool isBookingDay(const int day) const;
+    // Check if given day is in booking stage
+    bool isBookingPeriod(const int period) const;
+
+    // getBookingDay return the booking day given booking period
+    // Return -1 booking_period is not valid
+    int getBookingDay(const int booking_period) const;
+    // getServicePeriod return the serice period given booking day and before.
+    // Return -1 if booking_day or before is not valid
+    int getServicePeriod(const int booking_day, const int before) const;
+    // getBefore return the before given booking day and service period.
+    // Return -1 if booking_day or service_period is not valid
+    int getBefore(const int booking_day, const int service_period) const;
 };
 
 

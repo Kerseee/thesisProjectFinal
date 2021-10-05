@@ -1,4 +1,4 @@
-日期：10/4（六）
+日期：10/5（二）
 
 TODO:
 - CaseScale 多吃 booking_day (V)
@@ -14,9 +14,10 @@ TODO:
 - Implement OrderGenerator::generateOrder (V)
 - Write map key checker (V)
 
-- Implement IndDemandGenerator constructors
-- Implement IndDemandGenerator private methods
-- Implement IndDemandGenerator::generateIndDemand
+- Implement IndDemandGenerator constructors (V)
+- Implement IndDemandGenerator private methods (V)
+- Implement IndDemandGenerator::generateIndDemand (V)
+- 測試 IndDemandGenerator (V)
 
 ================================================================================================
 Next:
@@ -26,4 +27,9 @@ Next:
 ================================================================================================
 選做：
 - 寫 CaseData 的 checker
-- 寫 Generator 們的 store、debug
+- 寫 Generator 的寫檔
+
+================================================================================================
+思考：
+- 如果 individual 的 demand 是 0 的直接不存是否會更快？
+    - 但可能要改很多

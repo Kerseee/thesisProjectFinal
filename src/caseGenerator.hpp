@@ -86,10 +86,6 @@ class IndDemandGenerator: public Generator {
 private:
     const data::CaseData* data_;
 
-    // TODO
-    // getBefore return "before" given booking and service period.
-    int getBefore(const int booking_period, const int service_period);
-
 public:
     IndDemandGenerator();
     IndDemandGenerator(const data::CaseData& data);

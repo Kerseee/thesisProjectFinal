@@ -58,16 +58,18 @@ void debug(){
     data::CaseData data;
     data.readAllData(folder);
     cout << data.scale;
+
+    // Set State
+    planner::State::setScale(data.scale.service_period, data.scale.room_type);
     
     // Test functions
-    cout << "\n Test planner::OrderGenerator::generateOrder\n";
-    planner::OrderGenerator order_gen(data);
+    cout << "\n Test planner::IndDemandGenerator::generateDemand\n";
+    planner::IndDemandGenerator demand_gen(data);
     cout << "Input period: \n";
     int period = 0;
     cin >> period;
-    cout << data.price_ind << "\n";
-    planner::Order order = order_gen.generateOrder(period);
-    cout << order;
+    planner::State demand = demand_gen.generateDemand(period);
+    cout << demand;
 
     cout << "\nTest End!\n";
 }
