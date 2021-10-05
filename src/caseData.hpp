@@ -37,9 +37,6 @@ struct CaseScale {
     int before;
     int booking_day;
     int periods_per_day;
-    
-    // TODO 10/3
-    std::map<int, int> booking_period_day;
 
     CaseScale();
     CaseScale(const CaseScale& scale);

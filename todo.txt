@@ -1,27 +1,22 @@
 日期：10/5（二）
 
 TODO:
-- CaseScale 多吃 booking_day (V)
-- CaseScale 讓 before 不一定要 cover 到全部 (V)
+- 想 demand 到底還要不要沿用 state
+- 規劃 estimatedDemandGenerator
+- 寫 DeterExperimentor pseudocode
+- 寫 StochExperimentor pseudocode
+- 想 AdjExperimentor 的 child 要繼承它與 Deter/Stoch 其一的話，data 會撞到的問題。
+    - 或許就不要多重繼承了
 
-- Implement CaseScale 裡的所有 function 都加上 booking_period_day (V)
-- Implement CaseScale::isValidDay (V)
-
-- Implement Generator (V)
-
-- Implement OrderGenerator constructors (V)
-- Implement OrderGenerator private methods (V)
-- Implement OrderGenerator::generateOrder (V)
-- Write map key checker (V)
-
-- Implement IndDemandGenerator constructors (V)
-- Implement IndDemandGenerator private methods (V)
-- Implement IndDemandGenerator::generateIndDemand (V)
-- 測試 IndDemandGenerator (V)
+- Implement Hotel
+- Implement OrderDecision
+- Implement estimatedDemandGenerator
+- Implement Experimentor
+- 把 IndDemandGenerator 改成回傳 map 就好，不用 state?
 
 ================================================================================================
 Next:
-- 寫 casePlanner function 的 pseudocode
+
 - Implement casePlanner
 
 ================================================================================================

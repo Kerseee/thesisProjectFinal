@@ -33,12 +33,12 @@ public:
     int random(const std::map<int, double>& dist, const unsigned seed);
 };
 
-// TODO 10/3
+
 // OrderGenerator generate random orders from travel agencies.
 class OrderGenerator: public Generator {
 private:
     /* Variables */
-    const data::CaseData* data_;
+    const data::CaseData* data;
 
     /* Private methods */
     // getCheckIn return the day of check-in given period and before
@@ -84,7 +84,7 @@ public:
 // IndDemandGenerator generate random demand from individual customers.
 class IndDemandGenerator: public Generator {
 private:
-    const data::CaseData* data_;
+    const data::CaseData* data;
 
 public:
     IndDemandGenerator();

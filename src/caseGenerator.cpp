@@ -55,7 +55,7 @@ OrderGenerator::OrderGenerator(){
     ;
 }
 OrderGenerator::OrderGenerator(const data::CaseData& data){
-    this->data_ = &data;
+    this->data = &data;
 }
 
 void OrderGenerator::testFunc(){
@@ -67,13 +67,13 @@ void OrderGenerator::testFunc(){
 
 // Print the data in this OrderGenerator
 void OrderGenerator::printData(){
-    this->data_->printAll();
+    this->data->printAll();
 }
 
 // getCheckIn return the day of check-in given period and before
 int OrderGenerator::getCheckIn(const int period, const int before){
-    int booking_day = this->data_->scale.getBookingDay(period);
-    int check_in = this->data_->scale.getServicePeriod(booking_day, before);
+    int booking_day = this->data->scale.getBookingDay(period);
+    int check_in = this->data->scale.getServicePeriod(booking_day, before);
     return check_in;
 }
 
@@ -104,8 +104,8 @@ double OrderGenerator::getPrice(
     for(auto& r: rooms){
         for(auto& d: days){
             // Check if key exist
-            it = this->data_->price_ind.find({d, r.first});
-            if(it == this->data_->price_ind.end()){
+            it = this->data->price_ind.find({d, r.first});
+            if(it == this->data->price_ind.end()){
                 std::cout << "Error in OrderGenerator::getPrice: key{"
                     << r.first << "," << d << "} not exist!\n";
                 exit(1);
@@ -128,9 +128,9 @@ std::map<data::tuple2d, double> OrderGenerator::getUpgradeFee(
     std::map<data::tuple2d, double>::const_iterator it;
     std::string err_prefix = "Error in OrderGenerator::getUpgradeFee: ";
     std::string err_suffix = " not exist!\n";
-    auto out_of_bound = this->data_->price_ind.end();
+    auto out_of_bound = this->data->price_ind.end();
 
-    for(auto& pair: this->data_->upgrade_pairs){
+    for(auto& pair: this->data->upgrade_pairs){
         int from = std::get<0>(pair), to = std::get<1>(pair);
 
         // Compute average price differences of rooms in given days
@@ -138,7 +138,7 @@ std::map<data::tuple2d, double> OrderGenerator::getUpgradeFee(
         for(auto& day: days){
             // Get price of lower type room
             data::tuple2d key_from = std::make_tuple(day, from);
-            it = this->data_->price_ind.find(key_from);
+            it = this->data->price_ind.find(key_from);
             if(it == out_of_bound){
                 std::cout << err_prefix << key_from << err_suffix;
                 exit(1);
@@ -147,7 +147,7 @@ std::map<data::tuple2d, double> OrderGenerator::getUpgradeFee(
 
             // Get price of upper type room
             data::tuple2d key_to = std::make_tuple(day, to);
-            it = this->data_->price_ind.find(key_to);
+            it = this->data->price_ind.find(key_to);
             if(it == out_of_bound){
                 std::cout << err_prefix << key_to << err_suffix;
                 exit(1);
@@ -166,7 +166,7 @@ std::map<data::tuple2d, double> OrderGenerator::getUpgradeFee(
 // generateOrder generate an order node 
 Order OrderGenerator::generateOrder(const int period){
     Order order;
-    if(!this->data_->scale.isBookingPeriod(period)) return order;
+    if(!this->data->scale.isBookingPeriod(period)) return order;
     
     // For debug
     std::string err_prefix = "Error in OrderGenerator::generateOrder: ";
@@ -177,11 +177,11 @@ Order OrderGenerator::generateOrder(const int period){
     srand(seed);
     
     // Generate before
-    int before = this->random(this->data_->prob_before, rand());
+    int before = this->random(this->data->prob_before, rand());
 
     // Generate night
-    auto it_night = this->data_->prob_night.find(before);
-    if(it_night == this->data_->prob_night.end()){
+    auto it_night = this->data->prob_night.find(before);
+    if(it_night == this->data->prob_night.end()){
         std::cout << err_prefix << "Before " << before << " in prob_night"
              << err_suffix;
         exit(1);
@@ -195,8 +195,8 @@ Order OrderGenerator::generateOrder(const int period){
     int check_out = this->getCheckOut(check_in, night);
 
     // If checkin or checkout is not valid then return an empty order
-    if(!this->data_->scale.isServicePeriod(check_in) ||
-       !this->data_->scale.isServicePeriod(check_out)
+    if(!this->data->scale.isServicePeriod(check_in) ||
+       !this->data->scale.isServicePeriod(check_out)
     ){
         order.is_order = false;
         return order;
@@ -207,10 +207,10 @@ Order OrderGenerator::generateOrder(const int period){
     order.request_days = this->getRequestDays(check_in, check_out);
 
     // Generate request num
-    for(int r = 1; r <= this->data_->scale.room_type; r++) {
+    for(int r = 1; r <= this->data->scale.room_type; r++) {
         // Check if key r and before exist
-        auto it_room = this->data_->prob_request.find(r);
-        if(it_room == this->data_->prob_request.end()){
+        auto it_room = this->data->prob_request.find(r);
+        if(it_room == this->data->prob_request.end()){
             std::cout << err_prefix << "Room " << r << " in request" 
                 << err_suffix;
             exit(1);
@@ -225,8 +225,8 @@ Order OrderGenerator::generateOrder(const int period){
     }
         
     // Generate discount
-    auto it_discount = this->data_->prob_discount.find(before);
-    if(it_discount == this->data_->prob_discount.end()){
+    auto it_discount = this->data->prob_discount.find(before);
+    if(it_discount == this->data->prob_discount.end()){
         std::cout << err_prefix << "Before " << before << " in discount" 
             << err_suffix;
             exit(1);
@@ -249,7 +249,7 @@ Order OrderGenerator::generateOrder(const int period){
 // whole booking stage for one experiment.
 std::map<int, Order> OrderGenerator::generate(){
     std::map<int, Order> orders;
-    for(int t = this->data_->scale.booking_period; t > 0; t--){
+    for(int t = this->data->scale.booking_period; t > 0; t--){
         orders[t] = this->generateOrder(t);
     }
     return orders;
@@ -271,13 +271,13 @@ IndDemandGenerator::IndDemandGenerator(){
 }
 
 IndDemandGenerator::IndDemandGenerator(const data::CaseData& data){
-    this->data_ = &data;
+    this->data = &data;
 }
 
 // generateDemand generate an demand node 
 State IndDemandGenerator::generateDemand(const int period){
     State state;
-    if(!this->data_->scale.isBookingPeriod(period)) return state;
+    if(!this->data->scale.isBookingPeriod(period)) return state;
 
     // For debug
     std::string err_prefix = "Error in IndDemandGenerator::GenerateDemand: ";
@@ -288,15 +288,15 @@ State IndDemandGenerator::generateDemand(const int period){
     srand(seed);
 
     // Generate demands
-    for(int r = 1; r <= this->data_->scale.room_type; r++){
-        for(int s = 1; s <= this->data_->scale.service_period; s++){
+    for(int r = 1; r <= this->data->scale.room_type; r++){
+        for(int s = 1; s <= this->data->scale.service_period; s++){
             // Compute the true before to generate
-            int booking_day = this->data_->scale.getBookingDay(period);
-            int before = this->data_->scale.getBefore(booking_day, s);
+            int booking_day = this->data->scale.getBookingDay(period);
+            int before = this->data->scale.getBefore(booking_day, s);
             
             // Find the demand distribution with given room, service period
-            auto it = this->data_->prob_ind_demand.find(r);
-            if(it == this->data_->prob_ind_demand.end()){
+            auto it = this->data->prob_ind_demand.find(r);
+            if(it == this->data->prob_ind_demand.end()){
                 std::cout << err_prefix << "Room " << r << err_suffix;
                 exit(1);
             }
@@ -317,7 +317,7 @@ State IndDemandGenerator::generateDemand(const int period){
 // booking stage for one experiment.
 std::map<int, State> IndDemandGenerator::generate(){
     std::map<int, State> demands;
-    for(int t = this->data_->scale.booking_period; t > 0; t--){
+    for(int t = this->data->scale.booking_period; t > 0; t--){
         demands[t] = this->generateDemand(t);
     }
     return demands;

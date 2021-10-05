@@ -156,16 +156,12 @@ CaseScale& CaseScale::operator=(const CaseScale& scale){
     this->before = scale.before;
     this->booking_day = scale.booking_day;
     this->periods_per_day = scale.periods_per_day;
-    this->booking_period_day = scale.booking_period_day;
     return *this;
 }
 
 // refreshBookingVars() refresh the variables about booking stage
 void CaseScale::refreshBookingVars(){
     this->booking_period = (this->booking_day + 1) * this->periods_per_day;
-    for(int t = 1; t <= this->booking_period; t++){
-        this->booking_period_day[t] = (t - 1) / this->periods_per_day;
-    }
 }
 
 // Check if given day is in service stage
@@ -313,7 +309,6 @@ std::ostream& operator<<(std::ostream& os, const data::CaseScale& scale){
        << "periods_per_day: " << scale.periods_per_day << "\n"
        << "booking_day: " << scale.booking_day << "\n"
        << "booking_period: " << scale.booking_period << "\n"
-       << "service_period: " << scale.service_period << "\n"
-       << "booking_period_day: " << scale.booking_period_day << "\n"; 
+       << "service_period: " << scale.service_period << "\n"; 
     return os;
 }
