@@ -292,10 +292,12 @@ IndDemandGenerator::IndDemandGenerator(const data::CaseData& data){
     this->data = &data;
 }
 
-// generateDemand generate an demand node 
-State IndDemandGenerator::generateDemand(const int period){
-    State state;
-    if(!this->data->scale.isBookingPeriod(period)) return state;
+// generateDemand generate demand, only store the pair of service_period
+// and room that demand > 0 
+std::map<data::tuple2d, int> 
+IndDemandGenerator::generateDemand(const int period){
+    std::map<data::tuple2d, int> demand;
+    if(!this->data->scale.isBookingPeriod(period)) return demand;
 
     // For debug
     std::string err_prefix = "Error in IndDemandGenerator::GenerateDemand: ";
@@ -326,16 +328,18 @@ State IndDemandGenerator::generateDemand(const int period){
             if(it_demand_at_r != it->second.end()){
                 num_room = this->random(it_demand_at_r->second, rand());
             }
-            state.rooms[{s, r}] = num_room;            
+            if(num_room > 0){
+                demand[{s, r}] = num_room;
+            }
         }
     }
-    return state;
+    return demand;
 }
 
 // generate() generates a group of individual demands for the whole 
 // booking stage for one experiment.
-std::map<int, State> IndDemandGenerator::generate(){
-    std::map<int, State> demands;
+std::map<int, std::map<data::tuple2d, int> > IndDemandGenerator::generate(){
+    std::map<int, std::map<data::tuple2d, int> > demands;
     for(int t = this->data->scale.booking_period; t > 0; t--){
         demands[t] = this->generateDemand(t);
     }
@@ -344,9 +348,9 @@ std::map<int, State> IndDemandGenerator::generate(){
 
 // generate(num_experiments) generates groups of individual demands for the
 // whole booking stage for multiple experiments.
-std::map<int, std::map<int, State> > 
+std::map<int, std::map<int, std::map<data::tuple2d, int> > > 
 IndDemandGenerator::generate(const int num_experiments){
-    std::map<int, std::map<int, State> > demand_groups;
+    std::map<int, std::map<int, std::map<data::tuple2d, int> > > demand_groups;
     for(int e = 1; e <= num_experiments; e++){
         demand_groups[e] = this->generate();
     }

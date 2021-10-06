@@ -44,6 +44,7 @@ private:
     const data::CaseData* data;
 
     /* Private methods */
+    
     // getCheckIn return the day of check-in given period and before
     int getCheckIn(const int period, const int before);
 
@@ -93,14 +94,16 @@ public:
     IndDemandGenerator();
     IndDemandGenerator(const data::CaseData& data);
     
-    // generateDemand generate an demand node 
-    State generateDemand(const int period);
+    // generateDemand generate demand, only store the pair of service_period
+    // and room that demand > 0 
+    std::map<data::tuple2d, int> generateDemand(const int period);
     // generate() generates a group of individual demands for the whole 
     // booking stage for one experiment.
-    std::map<int, State> generate();
+    std::map<int, std::map<data::tuple2d, int> > generate();
     // generate(num_experiments) generates groups of individual demands for the
     // whole booking stage for multiple experiments.
-    std::map<int, std::map<int, State> > generate(const int num_experiments);
+    std::map<int, std::map<int, std::map<data::tuple2d, int> > > generate(
+        const int num_experiments);
 };
 
 // ExpectedDemandGenerator generate expected future demands from individual

@@ -63,12 +63,12 @@ void debug(){
     planner::State::setScale(data.scale.service_period, data.scale.room_type);
     
     // Test functions
-    cout << "\n Test planner::EstimatedDemandGenerator::generateEstDemand\n";
-    planner::EstimatedDemandGenerator gen(data);
-    cout << "Input period and seed: \n";
-    int period = 0, seed = 0;
-    cin >> period >> seed;
-    cout << gen.generateEstDemand(period, seed);
+    cout << "\n Test planner::IndDemandGenerator\n";
+    planner::IndDemandGenerator gen(data);
+    cout << "Input period: \n";
+    int period = 0;
+    cin >> period;
+    cout << gen.generateDemand(period);
 
     cout << "\nTest End!\n";
 }
