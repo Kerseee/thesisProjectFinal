@@ -3,9 +3,10 @@
 TODO:
 - Implement expectedDemandGenerator (V)
 - Implement estimatedDemandGenerator (V)
-- 把 IndDemandGenerator 改成回傳 map
-- Implement Hotel
-- Implement OrderDecision
+- 把 IndDemandGenerator 改成回傳 map (V)
+- Implement OrderDecision (V)
+- Implement Hotel and commit (V) 
+- Test Hotel (V)
 - Implement Experimentor
 - 寫 DeterExperimentor pseudocode
 - 寫 StochExperimentor pseudocode
@@ -22,5 +23,5 @@ TODO:
 
 ================================================================================================
 思考：
-- 如果 individual 的 demand 是 0 的直接不存是否會更快？
-    - 但可能要改很多
+- 哪些地方的 map 需要沒有 key 就 exit？
+    - 哪些不用？

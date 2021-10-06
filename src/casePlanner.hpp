@@ -24,6 +24,12 @@ struct OrderDecision {
 
     // upgrade information, key:{from, to}, value: num
     std::map<data::tuple2d, int> upgrade_info;
+
+    // Constructors
+    OrderDecision();
+    OrderDecision(const Order& order);
+    OrderDecision(const OrderDecision& od);
+    OrderDecision& operator=(const OrderDecision& od);
 };
 
 
@@ -31,14 +37,20 @@ class Hotel {
 private:
     int service_period;
     int room_type;
-    std::map<data::tuple2d, double> price;
+    // prices[{service_period, room_type}] = price
+    std::map<data::tuple2d, double> prices;
+    // rooms[{service_period, room_type}] = num
     std::map<data::tuple2d, int> rooms;
+
 public:
     Hotel();
     Hotel(const int service_period, const int room_type, 
-          std::map<data::tuple2d, double> price,
+          std::map<data::tuple2d, double> prices,
           std::map<data::tuple2d, int> rooms);
+    Hotel(const data::CaseData& data);
 
+    // print all information of this hotel
+    void print();
     // hasRoom Check if there is any available room
     bool hasRooms();
     // booking return false if there is any booking error

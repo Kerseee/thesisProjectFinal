@@ -18,6 +18,7 @@
 #include "src/experimentor.hpp"
 #include "src/caseData.hpp"
 #include "src/caseGenerator.hpp"
+#include "src/casePlanner.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -63,12 +64,26 @@ void debug(){
     planner::State::setScale(data.scale.service_period, data.scale.room_type);
     
     // Test functions
-    cout << "\n Test planner::IndDemandGenerator\n";
-    planner::IndDemandGenerator gen(data);
-    cout << "Input period: \n";
-    int period = 0;
-    cin >> period;
-    cout << gen.generateDemand(period);
+    cout << "\nTest planner::Hotel\n";
+    planner::Hotel hotel(data);
+    hotel.print();
+    cout << "Book some room: ";
+    int room, day, num;
+    cin >> room >> day >> num;
+    cout << "\nBooking state: " << hotel.booking(room, day, num) << "\n";
+    
+    
+    std::set<int> days;
+    bool quit = false;
+    while(!quit){
+        cout << "\nEnter day: ";
+        int day = 0;
+        cin >> day;
+        days.insert(day);
+        cout << "\nQuit for 1, stay for 0: ";
+        cin >> quit;
+    }
+    cout << hotel.getAllMinCapInPeriods(days);
 
     cout << "\nTest End!\n";
 }

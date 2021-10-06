@@ -11,6 +11,151 @@
 
 namespace planner {
 
+// ======================================================================
+// --------------------------- OrderDecision ----------------------------
+// ======================================================================
+
+OrderDecision::OrderDecision(){
+    this->order = nullptr;
+    this->accepted = false;
+    this->exp_acc_togo = 0;
+    this->exp_rej_togo = 0;
+    this->revenue = 0;
+    this->total_upgrade_fee = 0;
+}
+OrderDecision::OrderDecision(const Order& order){
+    this->order = &order;
+    this->accepted = false;
+    this->exp_acc_togo = 0;
+    this->exp_rej_togo = 0;
+    this->revenue = 0;
+    this->total_upgrade_fee = 0;
+}
+OrderDecision::OrderDecision(const OrderDecision& od){
+    this->operator=(od);
+}
+OrderDecision& OrderDecision::operator=(const OrderDecision& od){
+    this->order = od.order;
+    this->accepted = od.accepted;
+    this->exp_acc_togo = od.exp_acc_togo;
+    this->exp_rej_togo = od.exp_rej_togo;
+    this->revenue = od.revenue;
+    this->total_upgrade_fee = od.total_upgrade_fee;
+    this->upgrade_info = od.upgrade_info;
+    this->upgraded_request_rooms = od.upgraded_request_rooms;
+    return *this;
+}
+
+// ======================================================================
+// ------------------------------- Hotel --------------------------------
+// ======================================================================
+
+Hotel::Hotel(){
+    this->service_period = 0;
+    this->room_type = 0;
+}
+
+Hotel::Hotel(
+    const int service_period, const int room_type, 
+    std::map<data::tuple2d, double> prices, std::map<data::tuple2d, int> rooms
+){
+    this->service_period = service_period;
+    this->room_type = room_type;
+    this->prices = prices;
+    this->rooms = rooms;
+}
+
+Hotel::Hotel(const data::CaseData& data){
+    this->service_period = data.scale.service_period;
+    this->room_type = data.scale.room_type;
+    // Store price and rooms
+    for(int r = 1; r <= this->room_type; r++){
+        // Get room
+        auto it_room = data.capacity.find(r);
+        int room = 0;
+        if(it_room != data.capacity.end()){
+            room = it_room->second;
+        }
+        for(int s = 1; s <= this->service_period; s++){
+            // Get price
+            auto it_price = data.price_ind.find({s, r});
+            double price = 0;
+            if(it_price != data.price_ind.end()){
+                price = it_price->second;
+            }
+            
+            this->prices[{s, r}] = price;
+            this->rooms[{s, r}] = room;
+        }
+    }
+}
+
+// print all information of this hotel
+void Hotel::print(){
+    std::cout << "Print Hotel Info:"
+        << "------------------------------------------------------------\n"
+        << "service peirods: " << this->service_period << "\n"
+        << "room types: " << this->room_type << "\n"
+        << "prices: " << this->prices<< "\n"
+        << "rooms: " << this->rooms<< "\n"
+        << "------------------------------------------------------------\n";
+}
+
+// hasRoom Check if there is any available room
+bool Hotel::hasRooms(){
+    for(auto& room: this->rooms){
+        if(room.second > 0) return true;
+    }
+    return false;
+}
+
+// booking return false if there is any booking error
+bool Hotel::booking(const int room_type, const int day, const int num){
+    auto it = this->rooms.find({day, room_type});
+    // Return False if key {day, room_type} not exist
+    if(it == this->rooms.end()) return false;
+    // Return False requested number exceed available number of rooms
+    if(num > it->second) return false;
+    
+    // Book the room and return true
+    this->rooms[it->first] -= num;
+    return true;
+}
+
+// getMinCapInPeriods return the min capacity of room type during 
+// given periods.
+int Hotel::getMinCapInPeriods(
+    const int room_type, const std::set<int>& periods
+){
+    int min_cap = INT_MAX;
+    bool valid = false;
+    for(auto& s: periods){
+        auto it = this->rooms.find({s, room_type});
+        // Ignore following if the key is not found
+        if(it == this->rooms.end()) continue;
+        
+        // This search is valid if any key exist
+        valid = true;
+        // Find the min capacity
+        int cap = it->second;
+        if(cap < min_cap){
+            min_cap = cap;
+        }
+    }
+    if(!valid) return 0;
+    return min_cap;
+}
+// getAllMinCapInPeriods return the min capacity of all room types during 
+// given periods.
+std::map<int, int> Hotel::getAllMinCapInPeriods(const std::set<int>& periods){
+    std::map<int, int> min_caps;
+    for(int r = 1; r <= this->room_type; r++){
+        min_caps[r] = this->getMinCapInPeriods(r, periods);
+    }
+    return min_caps;
+}
+
+
 // // run1Period run the period routine in given period, with given the random
 // // order and demand, and then return the total revenue in this period.
 // void Experimentor::run1Period(
