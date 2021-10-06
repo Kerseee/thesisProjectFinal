@@ -85,9 +85,15 @@ class DeterExperimentor: public virtual Experimentor{
 protected:
     /* Variables */
     const data::CaseData* data;    // A data copy
-    const std::map<int, Order>* orders;
-    const std::map<int, State>* ind_demands;
-    const std::map<int, State>* estimated_ind_demands;
+    const std::map<int, Order>* orders; // Order received in each period
+    
+    // Demands received in each period: 
+    // ind_demands[period][{service_period, room_type}] = num
+    const std::map<int, std::map<data::tuple2d, int> >* ind_demands;
+
+    // Estimated future remand in each period: 
+    // estimated_ind_demands[period][{service_period, room_type}] = num
+    const std::map<int, std::map<data::tuple2d, int> >* estimated_ind_demands;
  
     /* Protected methods */
 
@@ -119,7 +125,6 @@ protected:
 
 public:
     void run();
-
 };
 
 // Adjusted planner

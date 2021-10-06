@@ -1,23 +1,19 @@
 日期：10/5（二）
 
 TODO:
-- 想 demand 到底還要不要沿用 state
-- 規劃 estimatedDemandGenerator
+- Implement expectedDemandGenerator (V)
+- Implement estimatedDemandGenerator (V)
+- 把 IndDemandGenerator 改成回傳 map
+- Implement Hotel
+- Implement OrderDecision
+- Implement Experimentor
 - 寫 DeterExperimentor pseudocode
 - 寫 StochExperimentor pseudocode
 - 想 AdjExperimentor 的 child 要繼承它與 Deter/Stoch 其一的話，data 會撞到的問題。
     - 或許就不要多重繼承了
 
-- Implement Hotel
-- Implement OrderDecision
-- Implement estimatedDemandGenerator
-- Implement Experimentor
-- 把 IndDemandGenerator 改成回傳 map 就好，不用 state?
-
 ================================================================================================
-Next:
 
-- Implement casePlanner
 
 ================================================================================================
 選做：

@@ -16,8 +16,9 @@ namespace planner{
 struct Order {
     bool is_order;
     double price;
-    std::set<int> request_days;
-    std::map<int, int> request_rooms;
+    std::set<int> request_days; // set of days in service period
+    std::map<int, int> request_rooms;   // request_rooms[room_type] = num
+    // upgrade_fees[{lower_room_type, upper_room_type}] = price
     std::map<data::tuple2d, double> upgrade_fees;
 
     Order();
@@ -31,6 +32,8 @@ public:
     // May return 0 if sum of probabilities from given distribution is not equal 1 
     // input: dist[value] = probability, seed = an unsigned number
     int random(const std::map<int, double>& dist, const unsigned seed);
+    // genSeedFromClock return the seed from system clock
+    unsigned genSeedFromClock();
 };
 
 
@@ -98,6 +101,48 @@ public:
     // generate(num_experiments) generates groups of individual demands for the
     // whole booking stage for multiple experiments.
     std::map<int, std::map<int, State> > generate(const int num_experiments);
+};
+
+// ExpectedDemandGenerator generate expected future demands from individual
+// customers
+class ExpectedDemandGenerator {
+private:
+    const data::CaseData* data;
+public:
+    ExpectedDemandGenerator();
+    ExpectedDemandGenerator(const data::CaseData& data);
+
+    // generateExpDemand generate expected future demand given period
+    std::map<data::tuple2d, int> generateExpDemand(const int period);
+
+    // generate() generates expected future demands for all booking period
+    // in data
+    std::map<int, std::map<data::tuple2d, int> > generate();
+
+};
+
+// ExpectedDemandGenerator generate estimated future demands from individual
+// customers
+class EstimatedDemandGenerator: public Generator {
+private:
+    const data::CaseData* data;
+public:
+    EstimatedDemandGenerator();
+    EstimatedDemandGenerator(const data::CaseData& data);
+
+    // generateEstDemand generate estimated future demand
+    std::map<data::tuple2d, int> generateEstDemand(
+        const int period, const unsigned seed);
+    
+    // genDemandScenarios generate estimated future demands given
+    // sample_size and period
+    std::vector<std::map<data::tuple2d, int> > genDemandScenarios(
+        const int sample_size, const int period);
+    
+    // generate() generate estimated future demands for all booking
+    // periods in data, given sample_size
+    std::map<int, std::vector<std::map<data::tuple2d, int> > > generate(
+        const int sample_size);
 };
 
 }

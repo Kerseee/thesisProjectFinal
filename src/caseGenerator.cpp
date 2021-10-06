@@ -12,6 +12,9 @@
 
 namespace planner{
 
+// ======================================================================
+// ------------------------------- Order --------------------------------
+// ======================================================================
 Order::Order() {
     this->is_order = false;
     this->price = 0;
@@ -29,6 +32,10 @@ Order& Order::operator=(const Order& order){
     this->upgrade_fees = order.upgrade_fees;
     return *this;
 }
+
+// ======================================================================
+// ----------------------------- Generator ------------------------------
+// ======================================================================
 
 // Generate a random number from the given distribution.
 // May return 0 if sum of probabilities from given distribution is not equal 1 
@@ -50,6 +57,14 @@ int Generator::random(const std::map<int, double>& dist, const unsigned seed){
     // If not find any match then return 0
     return 0;
 }
+
+unsigned Generator::genSeedFromClock(){
+    return std::chrono::system_clock::now().time_since_epoch().count();
+}
+
+// ======================================================================
+// --------------------------- OrderGenerator ---------------------------
+// ======================================================================
 
 OrderGenerator::OrderGenerator(){
     ;
@@ -173,7 +188,7 @@ Order OrderGenerator::generateOrder(const int period){
     std::string err_suffix = " not exist!\n";
 
     // Generate seed
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    unsigned seed = this->genSeedFromClock();
     srand(seed);
     
     // Generate before
@@ -265,6 +280,9 @@ std::map<int, std::map<int, Order> > OrderGenerator::generate(const int num_expe
     return order_groups;
 }
 
+// ======================================================================
+// ------------------------- IndDemandGenerator -------------------------
+// ======================================================================
 
 IndDemandGenerator::IndDemandGenerator(){
     ;
@@ -284,7 +302,7 @@ State IndDemandGenerator::generateDemand(const int period){
     std::string err_suffix = " not exist!\n";
 
     // Generate seed
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    unsigned seed = this->genSeedFromClock();
     srand(seed);
 
     // Generate demands
@@ -313,6 +331,7 @@ State IndDemandGenerator::generateDemand(const int period){
     }
     return state;
 }
+
 // generate() generates a group of individual demands for the whole 
 // booking stage for one experiment.
 std::map<int, State> IndDemandGenerator::generate(){
@@ -322,6 +341,7 @@ std::map<int, State> IndDemandGenerator::generate(){
     }
     return demands;
 }
+
 // generate(num_experiments) generates groups of individual demands for the
 // whole booking stage for multiple experiments.
 std::map<int, std::map<int, State> > 
@@ -333,8 +353,152 @@ IndDemandGenerator::generate(const int num_experiments){
     return demand_groups;
 }
 
-}   
-// End of namespace planner
+// ======================================================================
+// ---------------------- ExpectedDemandGenerator -----------------------
+// ======================================================================
+
+ExpectedDemandGenerator::ExpectedDemandGenerator(){
+    ;
+}
+
+ExpectedDemandGenerator::ExpectedDemandGenerator(const data::CaseData& data){
+    this->data = &data;
+}
+
+// generateExpDemand generate expected future demand given period
+std::map<data::tuple2d, int> ExpectedDemandGenerator::generateExpDemand(
+    const int period
+){
+    std::map<data::tuple2d, int> exp_demands;
+
+    for(int r = 1; r <= this->data->scale.room_type; r++){
+        auto it_room = this->data->prob_ind_demand.find(r);
+        // Skip r if room type r is not found in prob_ind_demand
+        if(it_room == this->data->prob_ind_demand.end()){
+            continue;
+        }
+        for(int s = 1; s <= this->data->scale.service_period; s++){
+            // Get the sum of expected value of demands from this period to the
+            // end of booking stage
+            double sum_expected_demands = 0;
+            for(int t = period; t >= 1; t--){
+                int booking_day = this->data->scale.getBookingDay(t);
+                int before = this->data->scale.getBefore(booking_day, s);
+                auto it_before = it_room->second.find(before);
+                // Skip day s if day s is not found in prob_ind_demand[r]
+                if(it_before == it_room->second.end()){
+                    continue;
+                }
+                // Get the expected value of demand that request the service 
+                // period s in the period t.
+                double expected_demand = 0;
+                for(auto& e: it_before->second){
+                    expected_demand += e.first * e.second;
+                }
+                // Update the sum_expected demands
+                sum_expected_demands += expected_demand;
+            }
+            int round_sum_exp_demand = round(sum_expected_demands);
+            if(round_sum_exp_demand > 0){
+                exp_demands[{s, r}] = round_sum_exp_demand;
+            }
+        }
+    }
+    return exp_demands;
+}
+
+// generate() generates expected future demands for all booking period
+// in data
+std::map<int, std::map<data::tuple2d, int> > 
+ExpectedDemandGenerator::generate(){
+    std::map<int, std::map<data::tuple2d, int> > exp_all_demands;
+    for(int t = this->data->scale.booking_period; t >= 1; t--){
+        exp_all_demands[t] = this->generateExpDemand(t);
+    }
+    return exp_all_demands;
+}
+
+// ======================================================================
+// ---------------------- EstimatedDemandGenerator ----------------------
+// ======================================================================
+
+EstimatedDemandGenerator::EstimatedDemandGenerator(){
+    ;
+}
+EstimatedDemandGenerator::EstimatedDemandGenerator(const data::CaseData& data){
+    this->data = &data;
+}
+
+// generateEstDemand generate estimated future demand
+std::map<data::tuple2d, int> 
+EstimatedDemandGenerator::generateEstDemand(
+    const int period, const unsigned seed
+){
+    srand(seed);
+    std::map<data::tuple2d, int> demand;
+
+    for(int r = 1; r <= this->data->scale.room_type; r++){
+        auto it_room = this->data->prob_ind_demand.find(r);
+        // Skip r if room type r is not found in prob_ind_demand
+        if(it_room == this->data->prob_ind_demand.end()){
+            continue;
+        }
+        for(int s = 1; s <= this->data->scale.service_period; s++){
+            // Get the sum of sampling number of demands from this period to the
+            // end of booking stage
+            int sum_demands = 0;
+            for(int t = period; t >= 1; t--){
+                // Get before
+                int booking_day = this->data->scale.getBookingDay(t);
+                int before = this->data->scale.getBefore(booking_day, s);
+                auto it_before = it_room->second.find(before);
+                // Skip day s if day s is not found in prob_ind_demand[r]
+                if(it_before == it_room->second.end()){
+                    continue;
+                }
+                // Sampling the number of demand from the distribution
+                int num = this->random(it_before->second, rand());
+                // Update the sum_demands
+                sum_demands += num;
+            }
+
+            if(sum_demands > 0){
+                demand[{s, r}] = sum_demands;
+            }
+        }
+    }
+    return demand;
+}
+
+// genDemandScenarios generate estimated future demands given
+// sample_size and period
+std::vector<std::map<data::tuple2d, int> > 
+EstimatedDemandGenerator::genDemandScenarios(
+    const int sample_size, const int period
+){
+    unsigned seed = this->genSeedFromClock();
+    srand(seed);
+    std::vector<std::map<data::tuple2d, int> > demands;
+    for(int i = 0; i < sample_size; i++){
+        demands.push_back(this->generateEstDemand(period, rand()));
+    }
+    return demands;
+}
+
+// generate() generate estimated future demands for all booking
+// periods in data, given sample_size
+std::map<int, std::vector<std::map<data::tuple2d, int> > >
+EstimatedDemandGenerator::generate(const int sample_size){
+    std::map<int, std::vector<std::map<data::tuple2d, int> > > all_demands;
+    for(int t = this->data->scale.booking_period; t >= 1; t--){
+        all_demands[t] = this->genDemandScenarios(sample_size, t);
+    }
+    return all_demands;
+}
+
+
+
+}   // End of namespace planner
 
 std::ostream& operator<<(std::ostream& os, const planner::Order& order){
     os << "is_order: " << order.is_order << "\n"
