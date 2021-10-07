@@ -1,17 +1,15 @@
-日期：10/5（二）
+日期：10/6（三）
 
 TODO:
-- Implement expectedDemandGenerator (V)
-- Implement estimatedDemandGenerator (V)
-- 把 IndDemandGenerator 改成回傳 map (V)
-- Implement OrderDecision (V)
-- Implement Hotel and commit (V) 
-- Test Hotel (V)
-- Implement Experimentor
+- Implement Experimentor (V)
+- 把 Order、OrderDecision、Hotel 搬到新的檔案去
 - 寫 DeterExperimentor pseudocode
 - 寫 StochExperimentor pseudocode
 - 想 AdjExperimentor 的 child 要繼承它與 Deter/Stoch 其一的話，data 會撞到的問題。
     - 或許就不要多重繼承了
+- 測 DeterExperimentor
+- 測 StochExperimentor
+- 想 MyopicExpersController
 
 ================================================================================================
 
