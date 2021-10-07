@@ -43,6 +43,16 @@ struct OrderDecision {
     OrderDecision(const Order& order);
     OrderDecision(const OrderDecision& od);
     OrderDecision& operator=(const OrderDecision& od);
+
+    // computeUpgradeFee compute the total upgrade fee with this->order and
+    // this.upgrade_info
+    void computeUpgradeFee();
+    // computeUpgradedRooms compute the number of rooms for each room type
+    // after upgraded, with this->order and this.upgrade_info
+    void computeUpgradedRooms();
+    // refreshUpgradeInfo() refresh the upgrade fee and upgrade rooms with
+    // this->upgrade_info
+    void refreshUpgradeInfo();
 };
 
 
@@ -115,6 +125,15 @@ public:
 
     // Return the upper types that given room_type can upgrade to
     std::set<int> getUpgradeUpper(const int room_type);
+
+    // Return the lower types that can be upgraded to this room_type
+    std::set<int> getUpgradeLower(const int room_type);
+
+    // Return the upgrade pairs
+    std::set<data::tuple2d> getUpgradePairs();
+
+    // Return the copy of remain available room after accept given an OrderDecision
+    std::map<data::tuple2d, int> showTryBooking(const OrderDecision& od);
 };
 
 }

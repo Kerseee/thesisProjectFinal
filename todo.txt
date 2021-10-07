@@ -1,15 +1,20 @@
-日期：10/6（三）
+日期：10/7（四）
 
 TODO:
-- Implement Experimentor (V)
-- 把 Order、OrderDecision、Hotel 搬到新的檔案去
-- 寫 DeterExperimentor pseudocode
-- 寫 StochExperimentor pseudocode
-- 想 AdjExperimentor 的 child 要繼承它與 Deter/Stoch 其一的話，data 會撞到的問題。
-    - 或許就不要多重繼承了
-- 測 DeterExperimentor
-- 測 StochExperimentor
+
+- 寫 DeterExperimentor::run() (V)
+- 寫 Experimentor 的 storage structure
+- 寫 CaseData 的 checker
+- 寫 Generator 的寫檔
 - 想 MyopicExpersController
+
+- 補完 StochExperimentor
+- 補完 AdjExperimentor
+- 補完 ADExperimentor
+- 補完 ASExperimentor
+
+- 測試！
+
 
 ================================================================================================
 
@@ -18,6 +23,7 @@ TODO:
 選做：
 - 寫 CaseData 的 checker
 - 寫 Generator 的寫檔
+- 寫 findBestOrder 的 check
 
 ================================================================================================
 思考：

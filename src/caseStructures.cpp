@@ -66,6 +66,48 @@ OrderDecision& OrderDecision::operator=(const OrderDecision& od){
     return *this;
 }
 
+// computeUpgradeFee compute the total upgrade fee with this->order and
+// this.upgrade_info
+void OrderDecision::computeUpgradeFee(){
+    double upgrade_fee = 0;
+    // Get total upgrade fee in one request day
+    for(auto& pair: this->upgrade_info){
+        int num = pair.second;
+        // Get the price
+        auto it_price = this->order->upgrade_fees.find(pair.first);
+        if(it_price == this->order->upgrade_fees.end()){
+            std::cout << "Error in OrderDecision::computeUpgradeFee: "
+                << "No pair " << pair.first << " exist!\n";
+            exit(1);
+        }
+        double price = it_price->second;
+        upgrade_fee += static_cast<double>(num) * price;
+    }
+    upgrade_fee *= this->order->request_days.size();
+    this->total_upgrade_fee = upgrade_fee;
+}
+
+// computeUpgradedRooms compute the number of rooms for each room type
+// after upgraded, with this->order and this.upgrade_info
+void OrderDecision::computeUpgradedRooms(){
+    // Initialize
+    this->upgraded_request_rooms = this->order->request_rooms;
+    // Upgrade rooms
+    for(auto& pair: this->upgrade_info){
+        int from = std::get<0>(pair.first), to = std::get<1>(pair.first);
+        int num = pair.second;
+        this->upgraded_request_rooms[from] -= num;
+        this->upgraded_request_rooms[to] += num;
+    }
+}
+
+// refreshUpgradeInfo() refresh the upgrade fee and upgrade rooms with
+// this->upgrade_info
+void OrderDecision::refreshUpgradeInfo(){
+    this->computeUpgradeFee();
+    this->computeUpgradedRooms();
+}
+
 // ======================================================================
 // ------------------------------- Hotel --------------------------------
 // ======================================================================
@@ -230,6 +272,31 @@ std::set<int> Hotel::getUpgradeUpper(const int room_type){
     auto it = this->upgrade_upper.find(room_type);
     if(it == this->upgrade_upper.end()) return std::set<int>();
     return it->second;
+}
+
+// Return the lower types that can be upgraded to this room_type
+std::set<int> Hotel::getUpgradeLower(const int room_type){
+    auto it = this->upgrade_lower.find(room_type);
+    if(it == this->upgrade_lower.end()) return std::set<int>();
+    return it->second;
+}
+
+// Return the upgrade pairs
+std::set<data::tuple2d> Hotel::getUpgradePairs(){
+    return this->upgrade_pairs;
+}
+
+// Return the copy of remain available room after accept given an OrderDecision
+std::map<data::tuple2d, int> Hotel::showTryBooking(const OrderDecision& od){
+    std::map<data::tuple2d, int> remain = this->rooms;
+    for(auto& day: od.order->request_days){
+        for(auto& room: od.upgraded_request_rooms){
+            int room_type = room.first;
+            int num = room.second;
+            remain[{day, room_type}] -= num;
+        }
+    }
+    return remain;
 }
 
 } // End of namespace planner
