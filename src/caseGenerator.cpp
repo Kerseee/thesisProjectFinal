@@ -6,32 +6,12 @@
 #include <chrono>
 #include <random>
 #include "data.hpp"
-#include "caseData.hpp"
 #include "planner.hpp"
+#include "caseData.hpp"
 #include "caseGenerator.hpp"
+#include "caseStructures.hpp"
 
 namespace planner{
-
-// ======================================================================
-// ------------------------------- Order --------------------------------
-// ======================================================================
-Order::Order() {
-    this->is_order = false;
-    this->price = 0;
-}
-
-Order::Order(const Order& order){
-    this->operator=(order);
-}
-
-Order& Order::operator=(const Order& order){
-    this->is_order = order.is_order;
-    this->price = order.price;
-    this->request_days = order.request_days;
-    this->request_rooms = order.request_rooms;
-    this->upgrade_fees = order.upgrade_fees;
-    return *this;
-}
 
 // ======================================================================
 // ----------------------------- Generator ------------------------------
@@ -504,11 +484,3 @@ EstimatedDemandGenerator::generate(const int sample_size){
 
 }   // End of namespace planner
 
-std::ostream& operator<<(std::ostream& os, const planner::Order& order){
-    os << "is_order: " << order.is_order << "\n"
-       << "price: " << order.price << "\n"
-       << "request_days: " << order.request_days << "\n"
-       << "request_rooms: " << order.request_rooms << "\n"
-       << "upgrade_price: " << order.upgrade_fees << "\n";
-    return os;
-}

@@ -7,24 +7,11 @@
 #include <ostream>
 #include <vector>
 #include "data.hpp"
-#include "caseData.hpp"
 #include "planner.hpp"
+#include "caseData.hpp"
+#include "caseStructures.hpp"
 
 namespace planner{
-
-// Order stores information of an order from a travel agency.
-struct Order {
-    bool is_order;
-    double price;
-    std::set<int> request_days; // set of days in service period
-    std::map<int, int> request_rooms;   // request_rooms[room_type] = num
-    // upgrade_fees[{lower_room_type, upper_room_type}] = price
-    std::map<data::tuple2d, double> upgrade_fees;
-
-    Order();
-    Order(const Order& order);
-    Order& operator=(const Order& order);
-};
 
 class Generator {
 public:
@@ -150,6 +137,6 @@ public:
 
 }
 
-std::ostream& operator<<(std::ostream& os, const planner::Order& order);
+
 
 #endif /* caseGenerator_hpp */
