@@ -14,7 +14,7 @@ namespace planner{
 
 // Order stores information of an order from a travel agency.
 struct Order {
-    bool is_order;
+    bool is_order;  // 0 for empty order, 1 for general order
     double price;
     std::set<int> request_days; // set of days in service period
     std::map<int, int> request_rooms;   // request_rooms[room_type] = num
@@ -55,6 +55,18 @@ struct OrderDecision {
     void refreshUpgradeInfo();
 };
 
+struct ExperimentorResult {
+    int num_periods;
+    int stop_period;
+    std::map<int, OrderDecision> decisions;
+    std::map<int, std::map<data::tuple2d, int> > accepted_demands;
+    double revenue;
+
+    ExperimentorResult();
+    ExperimentorResult(const int num_periods);
+    ExperimentorResult(const ExperimentorResult& result);
+    ExperimentorResult& operator=(const ExperimentorResult& result);
+};
 
 class Hotel {
 private:

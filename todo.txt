@@ -1,18 +1,19 @@
-日期：10/7（四）
+日期：10/8（五）
 
 TODO:
 
-- 寫 DeterExperimentor::run() (V)
-- 寫 Experimentor 的 storage structure
-- 寫 CaseData 的 checker
-- 寫 Generator 的寫檔
-- 想 MyopicExpersController
+- implement ExperimentorResults (V)
+- 把 ExperimentorResults 放進 planners 裡面 (V)
+- 把 experimentorResults 的 run 的架構往上放到 experimentor (V)
+- generator generate 出來的東西直接存在 controller 裡面 (V)
+- 寫 controller 存檔
+
 
 - 補完 StochExperimentor
 - 補完 AdjExperimentor
 - 補完 ADExperimentor
 - 補完 ASExperimentor
-
+- 補 refactor raiseKeyError
 - 測試！
 
 

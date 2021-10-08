@@ -109,6 +109,37 @@ void OrderDecision::refreshUpgradeInfo(){
 }
 
 // ======================================================================
+// ------------------------ ExperimentorResult --------------------------
+// ======================================================================
+
+ExperimentorResult::ExperimentorResult(){
+    this->num_periods = 0;
+    this->stop_period = 0;
+    this->revenue = 0;
+}
+
+ExperimentorResult::ExperimentorResult(const int num_periods){
+    this->num_periods = num_periods;
+    this->stop_period = 0;
+    this->revenue = 0;
+}
+
+ExperimentorResult::ExperimentorResult(const ExperimentorResult& result){
+    this->operator=(result);
+}
+
+ExperimentorResult& ExperimentorResult::operator=(
+    const ExperimentorResult& result
+){
+    this->num_periods = result.num_periods;
+    this->stop_period = result.stop_period;
+    this->revenue = result.revenue;
+    this->decisions = result.decisions;
+    this->accepted_demands = result.accepted_demands;
+    return *this;
+}
+
+// ======================================================================
 // ------------------------------- Hotel --------------------------------
 // ======================================================================
 

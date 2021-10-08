@@ -14,6 +14,8 @@
 namespace planner{
 
 class Generator {
+private:
+    int records;
 public:
     // Generate a random number from the given distribution.
     // May return 0 if sum of probabilities from given distribution is not equal 1 
@@ -25,7 +27,7 @@ public:
 
 
 // OrderGenerator generate random orders from travel agencies.
-class OrderGenerator: public Generator {
+class OrderGenerator: public virtual Generator {
 private:
     /* Variables */
     const data::CaseData* data;
@@ -59,12 +61,15 @@ public:
 
     // generateOrder generate an order node 
     Order generateOrder(const int period);
+    
     // generate() generates a group of orders from travel agencies for the 
     // whole booking stage for one experiment.
     std::map<int, Order> generate();
+    
     // generate(num_experiments) generates groups of orders from travel agencies
     // for the whole booking stage for multiple experiments.
     std::map<int, std::map<int, Order> > generate(const int num_experiments);
+    
     // Print the data in this OrderGenerator
     void printData();
 
@@ -73,7 +78,7 @@ public:
 };
 
 // IndDemandGenerator generate random demand from individual customers.
-class IndDemandGenerator: public Generator {
+class IndDemandGenerator: public virtual Generator {
 private:
     const data::CaseData* data;
 
@@ -84,9 +89,11 @@ public:
     // generateDemand generate demand, only store the pair of service_period
     // and room that demand > 0 
     std::map<data::tuple2d, int> generateDemand(const int period);
+    
     // generate() generates a group of individual demands for the whole 
     // booking stage for one experiment.
     std::map<int, std::map<data::tuple2d, int> > generate();
+    
     // generate(num_experiments) generates groups of individual demands for the
     // whole booking stage for multiple experiments.
     std::map<int, std::map<int, std::map<data::tuple2d, int> > > generate(
@@ -95,9 +102,10 @@ public:
 
 // ExpectedDemandGenerator generate expected future demands from individual
 // customers
-class ExpectedDemandGenerator {
+class ExpectedDemandGenerator: public virtual Generator {
 private:
     const data::CaseData* data;
+
 public:
     ExpectedDemandGenerator();
     ExpectedDemandGenerator(const data::CaseData& data);
@@ -108,12 +116,11 @@ public:
     // generate() generates expected future demands for all booking period
     // in data
     std::map<int, std::map<data::tuple2d, int> > generate();
-
 };
 
 // ExpectedDemandGenerator generate estimated future demands from individual
 // customers
-class EstimatedDemandGenerator: public Generator {
+class EstimatedDemandGenerator: public virtual Generator {
 private:
     const data::CaseData* data;
 public:

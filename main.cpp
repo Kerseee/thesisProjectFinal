@@ -61,29 +61,8 @@ void debug(){
     cout << data.scale;
 
     // Set State
-    planner::State::setScale(data.scale.service_period, data.scale.room_type);
-    
-    // Test functions
-    cout << "\nTest planner::Hotel\n";
-    planner::Hotel hotel(data);
-    hotel.print();
-    cout << "Book some room: ";
-    int room, day, num;
-    cin >> room >> day >> num;
-    cout << "\nBooking state: " << hotel.booking(room, day, num) << "\n";
-    
-    
-    std::set<int> days;
-    bool quit = false;
-    while(!quit){
-        cout << "\nEnter day: ";
-        int day = 0;
-        cin >> day;
-        days.insert(day);
-        cout << "\nQuit for 1, stay for 0: ";
-        cin >> quit;
-    }
-    cout << hotel.getAllMinCapInPeriods(days);
+    planner::DeterExperimentor myopicND(data);
+    myopicND.run();
 
     cout << "\nTest End!\n";
 }

@@ -17,14 +17,15 @@ namespace planner {
 class Experimentor {
 protected:
     /* Variables */
-    Hotel* hotel;
+    Hotel hotel;
     double revenue;
-    
+    ExperimentorResult result;
+
     /* Protected methods */
 
     // handleOrder handle the order received in given period and return revenue
     double handleOrder(const int period, const Order& order);
-    
+
     // handleOrder handle the individual remand received in given period
     // and return revenue
     double handleIndDemand(
@@ -59,13 +60,20 @@ protected:
     // Return false if there is any booking error
     bool booking(const OrderDecision& decision);
     bool booking(const std::map<data::tuple2d, int>& ind_demand);
+
+public:
+    // run() run the whole experiment and return result
+    virtual ExperimentorResult run() = 0;
+    
+    // getResult return the result of this experimentor
+    ExperimentorResult getResult();
 };
 
 // CaseExperimentor extend the Experimentor, and define the use of CaseData
 class CaseExperimentor: public virtual Experimentor{
 protected:
     /* Variables */
-    const data::CaseData* data;    // A data copy
+    const data::CaseScale* scale;    // A data copy
     const std::map<int, Order>* orders; // Order received in each period
     
     // Demands received in each period: 
@@ -76,11 +84,12 @@ protected:
     // {{day, roomtype}}:0} for those day that not in org_demand but in days.
     std::map<data::tuple2d, int> demandJoin(
         const std::map<data::tuple2d, int>& org_demand, 
-        const std::set<int>& days)
+        const std::set<int>& days);
 
 public:
     /* Constructors and destructor */
     CaseExperimentor();
+    CaseExperimentor(const data::CaseData& data);
 
     // addOrders add orders for each booking period   
     void addOrders(const std::map<int, Order>& orders);
@@ -111,21 +120,24 @@ public:
     /* Constructors and destructor */
     DeterExperimentor();
     DeterExperimentor(const data::CaseData& data);
-    ~DeterExperimentor();
 
     // addEstIndDemands add the estimated future individual demands.
     void addEstIndDemands(
         const std::map<int, std::map<data::tuple2d, int> >& est_demands);
 
     /* Public method */
-    void run();
+    ExperimentorResult run() override;
 };
 
 // Stochastic planner
 class StochExperimentor: public virtual CaseExperimentor{
 protected:
     /* Variables */
-    const data::CaseData* data;    // A data copy
+
+    // Estimated future remand in each period: 
+    // estimated_ind_demands[period][{service_period, room_type}] = num
+    const std::map<int, std::vector<std::map<data::tuple2d, int> > >* 
+        estimated_ind_demands;
 
     /* Protected methods */
 
@@ -134,7 +146,16 @@ protected:
         const int period, const Order& order) override;
 
 public:
-    void run();
+    StochExperimentor();
+    StochExperimentor(const data::CaseData& data);
+
+    // addEstIndDemands add the estimated future individual demands.
+    void addEstIndDemands(
+        std::map<int, std::vector<std::map<data::tuple2d, int> > >& 
+        est_demands
+    );
+
+    ExperimentorResult run() override;
 };
 
 // Adjusted planner
@@ -148,26 +169,29 @@ protected:
     void decide(MyopicUpgradePlan& plan, double baseline);
 };
 
-class ADExperimentor: public AdjExperimentor, public DeterExperimentor {
+class ADExperimentor: 
+    public virtual AdjExperimentor, public virtual DeterExperimentor {
 public:
-    void run();
+    ADExperimentor();
+    ADExperimentor(const data::CaseData& data);
+    
+    ExperimentorResult run() override;
 };
 
-class ASExperimentor: public AdjExperimentor, public StochExperimentor {
+class ASExperimentor: 
+    public virtual AdjExperimentor, public virtual StochExperimentor {
 public:
-    void run();
-};
+    ASExperimentor();
+    ASExperimentor(const data::CaseData& data);
 
-
-class ExperimentsController {
-
+    ExperimentorResult run() override;
 };
 
 }
 
 // raiseKeyError output the error message and exit
 template<typename T>
-void raiseKeyError(const std::string& location, const T& key, 
+void raiseKeyError(const std::string& location, const T key, 
     const std::string container);
 
 #endif /* casePlanner_hpp */
