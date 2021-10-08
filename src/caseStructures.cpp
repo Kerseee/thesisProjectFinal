@@ -116,12 +116,14 @@ ExperimentorResult::ExperimentorResult(){
     this->num_periods = 0;
     this->stop_period = 0;
     this->revenue = 0;
+    this->runtime = 0;
 }
 
 ExperimentorResult::ExperimentorResult(const int num_periods){
     this->num_periods = num_periods;
     this->stop_period = 0;
     this->revenue = 0;
+    this->runtime = 0;
 }
 
 ExperimentorResult::ExperimentorResult(const ExperimentorResult& result){
@@ -134,6 +136,7 @@ ExperimentorResult& ExperimentorResult::operator=(
     this->num_periods = result.num_periods;
     this->stop_period = result.stop_period;
     this->revenue = result.revenue;
+    this->runtime = result.runtime;
     this->decisions = result.decisions;
     this->accepted_demands = result.accepted_demands;
     return *this;
@@ -156,6 +159,20 @@ Hotel::Hotel(
     this->room_type = room_type;
     this->prices = prices;
     this->rooms = rooms;
+}
+
+Hotel::Hotel(const Hotel& hotel){
+    this->operator=(hotel);
+}
+Hotel& Hotel::operator=(const Hotel& hotel){
+    this->service_period = hotel.service_period;
+    this->room_type = hotel.room_type;
+    this->prices = hotel.prices;
+    this->rooms = hotel.rooms;
+    this->upgrade_upper = hotel.upgrade_upper;
+    this->upgrade_lower = hotel.upgrade_lower;
+    this->upgrade_pairs = hotel.upgrade_pairs;
+    return *this;
 }
 
 Hotel::Hotel(const data::CaseData& data){

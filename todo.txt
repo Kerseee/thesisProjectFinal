@@ -2,11 +2,8 @@
 
 TODO:
 
-- implement ExperimentorResults (V)
-- 把 ExperimentorResults 放進 planners 裡面 (V)
-- 把 experimentorResults 的 run 的架構往上放到 experimentor (V)
-- generator generate 出來的東西直接存在 controller 裡面 (V)
 - 寫 controller 存檔
+- 先測 deter
 
 
 - 補完 StochExperimentor

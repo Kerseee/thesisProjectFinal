@@ -16,6 +16,10 @@ namespace planner {
 // ---------------------------- Experimentor ----------------------------
 // ======================================================================
 
+Experimentor::Experimentor(){}
+Experimentor::Experimentor(const data::CaseData& data)
+    :hotel(data), revenue(0), result(){}
+
 // handleOrder handle the order received in given period and return revenue
 double Experimentor::handleOrder(const int period, const Order& order){
     
@@ -217,9 +221,10 @@ CaseExperimentor::CaseExperimentor(){
     this->revenue = 0;
 }
 
-CaseExperimentor::CaseExperimentor(const data::CaseData& data){
+CaseExperimentor::CaseExperimentor(const data::CaseData& data)
+    :Experimentor(data)
+{
     this->scale = nullptr;
-    this->hotel = Hotel(data);
     this->orders = nullptr;
     this->ind_demands = nullptr;
     this->revenue = 0;
@@ -254,6 +259,42 @@ std::map<data::tuple2d, int> CaseExperimentor::demandJoin(
         demand[d.first] = d.second;
     }
     return demand;
+}
+
+ExperimentorResult CaseExperimentor::run(){
+    time_t start;
+    time(&start);
+    for(int t = this->scale->booking_period; t >= 1; t--){
+        
+        // Get order and demand received in this period
+        auto it_order = this->orders->find(t);
+        auto it_demand = this->ind_demands->find(t);
+
+        // Check if order exist
+        if(it_order == this->orders->end()){
+            raiseKeyError("run", t, "order");
+        }
+
+        // Check if demand exist
+        if(it_demand == this->ind_demands->end()){
+            raiseKeyError("run", t, "demand");
+        }
+
+        // Run this period
+        double revenue = this->run1Period(
+            t, it_order->second, it_demand->second);
+        this->result.revenue += revenue;
+        
+        // If there is no room then break
+        if(!this->hotel.hasRooms()){
+            this->result.stop_period = t;
+            break;
+        }
+    }
+    time_t end;
+    time(&end);
+    this->result.runtime = difftime(end, start);
+    return this->result;
 }
 
 // ======================================================================
@@ -462,37 +503,6 @@ void DeterExperimentor::addEstIndDemands(
     const std::map<int, std::map<data::tuple2d, int> >& est_demands
 ){
     this->estimated_ind_demands = &est_demands;
-}
-
-ExperimentorResult DeterExperimentor::run(){
-    for(int t = this->scale->booking_period; t >= 1; t--){
-        
-        // Get order and demand received in this period
-        auto it_order = this->orders->find(t);
-        auto it_demand = this->ind_demands->find(t);
-
-        // Check if order exist
-        if(it_order == this->orders->end()){
-            raiseKeyError("run", t, "order");
-        }
-
-        // Check if demand exist
-        if(it_demand == this->ind_demands->end()){
-            raiseKeyError("run", t, "demand");
-        }
-
-        // Run this period
-        double revenue = this->run1Period(
-            t, it_order->second, it_demand->second);
-        this->result.revenue += revenue;
-        
-        // If there is no room then break
-        if(!this->hotel.hasRooms()){
-            this->result.stop_period = t;
-            break;
-        }
-    }
-    return this->result;
 }
 
 // // ======================================================================

@@ -57,10 +57,13 @@ struct OrderDecision {
 
 struct ExperimentorResult {
     int num_periods;
-    int stop_period;
-    std::map<int, OrderDecision> decisions;
+    int stop_period;    // store period that out of capacity
+    std::map<int, OrderDecision> decisions; // store decision of each period
+    // store accepted demand of each period
     std::map<int, std::map<data::tuple2d, int> > accepted_demands;
-    double revenue;
+    double revenue; // store the total revenue of one experiment
+    // store the total time of running experiment, not including preparing time
+    double runtime; 
 
     ExperimentorResult();
     ExperimentorResult(const int num_periods);
@@ -92,6 +95,8 @@ public:
           std::map<data::tuple2d, double> prices,
           std::map<data::tuple2d, int> rooms);
     Hotel(const data::CaseData& data);
+    Hotel(const Hotel& hotel);
+    Hotel& operator=(const Hotel& hotel);
 
     // print all information of this hotel
     void print();

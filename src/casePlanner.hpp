@@ -62,9 +62,12 @@ protected:
     bool booking(const std::map<data::tuple2d, int>& ind_demand);
 
 public:
+    Experimentor();
+    Experimentor(const data::CaseData& data);
+    
     // run() run the whole experiment and return result
     virtual ExperimentorResult run() = 0;
-    
+
     // getResult return the result of this experimentor
     ExperimentorResult getResult();
 };
@@ -96,6 +99,9 @@ public:
     // addIndDemands add individual demands for each booking period
     void addIndDemands(
         const std::map<int, std::map<data::tuple2d, int> >& demands);
+    
+    /* Public method */
+    ExperimentorResult run() override;
 };
 
 // Deterministic planner
@@ -124,9 +130,6 @@ public:
     // addEstIndDemands add the estimated future individual demands.
     void addEstIndDemands(
         const std::map<int, std::map<data::tuple2d, int> >& est_demands);
-
-    /* Public method */
-    ExperimentorResult run() override;
 };
 
 // Stochastic planner
@@ -155,7 +158,6 @@ public:
         est_demands
     );
 
-    ExperimentorResult run() override;
 };
 
 // Adjusted planner
@@ -174,8 +176,6 @@ class ADExperimentor:
 public:
     ADExperimentor();
     ADExperimentor(const data::CaseData& data);
-    
-    ExperimentorResult run() override;
 };
 
 class ASExperimentor: 
@@ -183,8 +183,6 @@ class ASExperimentor:
 public:
     ASExperimentor();
     ASExperimentor(const data::CaseData& data);
-
-    ExperimentorResult run() override;
 };
 
 }
