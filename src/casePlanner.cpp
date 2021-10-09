@@ -31,6 +31,7 @@ double Experimentor::handleOrder(const int period, const Order& order){
 
     // Find the best decision of this order
     OrderDecision decision = this->findBestOrderDecision(period, order);
+    decision.acceptable = true;
     this->result.decisions[period] = decision;
 
     // Return 0 if this order is not accepted
@@ -81,9 +82,11 @@ double Experimentor::run1Period(
 ){
     // Handle received order 
     double rev_order = this->handleOrder(period, order);
+    this->result.order_revenues[period] = rev_order;
 
     // Handle individual demand
     double rev_ind_demand = this->handleIndDemand(period, ind_demand);
+    this->result.ind_demand_revenues[period] = rev_ind_demand;
     return rev_order + rev_ind_demand;
 }
 

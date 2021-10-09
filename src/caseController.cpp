@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <ostream>
+#include <fstream>
 #include <vector>
 #include "data.hpp"
 #include "planner.hpp"
@@ -11,7 +12,19 @@
 #include "casePlanner.hpp"
 #include "caseController.hpp"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 namespace planner {
+
+void createRelativeFolder(std::string folder){
+#ifdef __APPLE__
+    system(("mkdir " + folder).c_str());
+#elif _WIN32
+    CreateDirectory((folder).c_str(), NULL);
+#endif
+}
 
 // ======================================================================
 // ----------------------- MyopicExpersController -----------------------
@@ -135,7 +148,9 @@ void MyopicExpersController::runPlanner(
     this->results[planner_type] = planner_result;
 }
 
-// runAll go through all the process
+// runAll go through processes including reading data, generating events,
+// and running planners. If you want to store results after calling runAll,
+// please call storeAllResults(folder) and input the result-folder path.
 void MyopicExpersController::runAll(
     const std::string& data_folder, const int num_exper, const int sample_size
 ){
@@ -152,9 +167,89 @@ void MyopicExpersController::runAll(
     // this->runPlanner("AS", num_exper);
 }
 
+// storeResult store the result of given planner type
+void MyopicExpersController::storeResult(
+    const std::string& planner_type, const std::string& path
+){
+    // Check if result of planner exist
+    auto it = this->results.find(planner_type);
+    if(it == this->results.end()){
+        std::cout << "Type " << planner_type 
+            << " does not exist in results!\n";
+        return;
+    }
+    // Write header of result file
+    std::ofstream out;
+    out.open(path);
+    std::string head = "Experiment,revenue,time,sold_out";
+    for(int t = this->data.scale.booking_period; t >= 1; t--){
+        head += ",acceptable_t" + std::to_string(t)
+                + ",decision_t" + std::to_string(t)
+                + ",rev_acc_t" + std::to_string(t)
+                + ",rev_rej_t" + std::to_string(t)
+                + ",rev_order_t" + std::to_string(t)
+                + ",rev_ind_t" + std::to_string(t);
+    }
+    head += "\n";
+    out << head;
+
+    // Write the result into result file
+    for(auto& exper: it->second){
+        int exper_id = exper.first;
+        auto& result = exper.second;
+        std::string msg = std::to_string(exper_id) + "," 
+                        + std::to_string(result.revenue) + ","
+                        + std::to_string(result.runtime) + ","
+                        + std::to_string(result.stop_period);
+
+        // Write results in all booking periods
+        for(int t = this->data.scale.booking_period; t >= 1; t--){
+            bool acceptable = false, accepted = false;
+            double rev_accept = 0, rev_reject = 0;
+            double rev_order = 0, rev_ind_demand = 0;
+            
+            // Fetch results about decision
+            auto it_decision = result.decisions.find(t);
+            if(it_decision != result.decisions.end()){
+                auto& decision = it_decision->second;
+                acceptable = decision.acceptable;
+                accepted = decision.accepted;
+                rev_accept = decision.exp_acc_togo;
+                rev_reject = decision.exp_rej_togo;
+            }
+            
+            // Fetch results about revenues of order and demand
+            auto it_order_rev = result.order_revenues.find(t);
+            if(it_order_rev != result.order_revenues.end()){
+                rev_order = it_order_rev->second;
+            }
+            auto it_order_demand = result.ind_demand_revenues.find(t);
+            if(it_order_demand != result.ind_demand_revenues.end()){
+                rev_ind_demand = it_order_demand->second;
+            }
+            
+            // Write to file
+            msg += "," + std::to_string(acceptable)
+                    + "," + std::to_string(accepted)
+                    + "," + std::to_string(rev_accept)
+                    + "," + std::to_string(rev_reject)
+                    + "," + std::to_string(rev_order)
+                    + "," + std::to_string(rev_ind_demand);
+        }
+        msg += "\n";
+        out << msg;
+    }
+    out.close();
+}
+
 // storeResults store all results into folder
-void MyopicExpersController::storeResults(const std::string& folder){
-    
+// Please make sure there is "/" for mac or "\" for windows after folder
+void MyopicExpersController::storeAllResults(const std::string& folder){
+    createRelativeFolder(folder);
+    this->storeResult("ND", folder + "ND_result.csv");
+    this->storeResult("NS", folder + "NS_result.csv");
+    this->storeResult("AD", folder + "AD_result.csv");
+    this->storeResult("AS", folder + "AS_result.csv");
 }
 
 }

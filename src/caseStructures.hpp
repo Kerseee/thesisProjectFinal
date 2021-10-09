@@ -33,7 +33,8 @@ struct OrderDecision {
     double exp_rej_togo; // expected value togo if this order is rejected
     double total_upgrade_fee; // upgrade fee of this order
     double revenue; // price + upgrade_fee if accepted, 0 otherwise
-    bool accepted;  // 1 if thie order is accepted
+    bool acceptable;    // 1 if this order is acceptable
+    bool accepted;  // 1 if this order is accepted
 
     // upgrade information, key:{from, to}, value: num
     std::map<data::tuple2d, int> upgrade_info;
@@ -58,9 +59,14 @@ struct OrderDecision {
 struct ExperimentorResult {
     int num_periods;
     int stop_period;    // store period that out of capacity
-    std::map<int, OrderDecision> decisions; // store decision of each period
+    // store decision of each period
+    std::map<int, OrderDecision> decisions; 
     // store accepted demand of each period
     std::map<int, std::map<data::tuple2d, int> > accepted_demands;
+    // store revenue from order in each period
+    std::map<int, double> order_revenues;
+    // store revenue from individual demands in each period
+    std::map<int, double> ind_demand_revenues;
     double revenue; // store the total revenue of one experiment
     // store the total time of running experiment, not including preparing time
     double runtime; 

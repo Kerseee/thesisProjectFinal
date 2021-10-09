@@ -42,6 +42,7 @@ OrderDecision::OrderDecision(){
     this->exp_rej_togo = 0;
     this->revenue = 0;
     this->total_upgrade_fee = 0;
+    this->acceptable = false;
 }
 OrderDecision::OrderDecision(const Order& order){
     this->order = &order;
@@ -50,6 +51,7 @@ OrderDecision::OrderDecision(const Order& order){
     this->exp_rej_togo = 0;
     this->revenue = 0;
     this->total_upgrade_fee = 0;
+    this->acceptable = false;
 }
 OrderDecision::OrderDecision(const OrderDecision& od){
     this->operator=(od);
@@ -63,6 +65,7 @@ OrderDecision& OrderDecision::operator=(const OrderDecision& od){
     this->total_upgrade_fee = od.total_upgrade_fee;
     this->upgrade_info = od.upgrade_info;
     this->upgraded_request_rooms = od.upgraded_request_rooms;
+    this->acceptable = od.acceptable;
     return *this;
 }
 
@@ -139,6 +142,8 @@ ExperimentorResult& ExperimentorResult::operator=(
     this->runtime = result.runtime;
     this->decisions = result.decisions;
     this->accepted_demands = result.accepted_demands;
+    this->order_revenues = result.order_revenues;
+    this->ind_demand_revenues = result.ind_demand_revenues;
     return *this;
 }
 

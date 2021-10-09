@@ -15,6 +15,8 @@
 
 namespace planner {
 
+void createRelativeFolder(std::string folder);
+
 class MyopicExpersController{
 private:
     /* Variables */
@@ -71,18 +73,25 @@ public:
     // number of experiments.
     void generateEvents(const int num_exper, const int sample_size);
 
-    // runPlanner run the planner num_exper times
+    // runPlanner run the planner num_exper times and store the result of 
+    // given planner
     void runPlanner(const std::string& planner_type, const int num_exper);
 
-    // runAll go through all the process
+    // runAll go through processes including reading data, generating events,
+    // and running planners. If you want to store results after calling runAll,
+    // please call storeAllResults(folder) and input the result-folder path.
     void runAll(
         const std::string& data_folder, 
         const int num_exper, 
         const int sample_size
     );
 
+    // storeResult store the result of given planner type into a csv
+    void storeResult(const std::string& planner_type, const std::string& path);
+    
     // storeResults store all results into folder
-    void storeResults(const std::string& folder);    
+    // Please make sure there is "/" for mac or "\" for windows after folder
+    void storeAllResults(const std::string& folder);    
 };
 
 
