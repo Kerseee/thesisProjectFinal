@@ -90,6 +90,12 @@ protected:
     std::map<data::tuple2d, int> demandJoin(
         const std::map<data::tuple2d, int>& org_demand, 
         const std::set<int>& days);
+    
+    // findBestOrderDecision return the best order decision
+    OrderDecision findBestOrderDecision(
+        const int period, const Order& order) override;
+    
+    virtual void processOrder(const int period, OrderDecision& od) = 0;
 
 public:
     /* Constructors and destructor */
@@ -120,9 +126,7 @@ protected:
     // upgrade algorithm and store the upgraded information into od. 
     void processOrder(const int period, OrderDecision& od);
 
-    // findBestOrderDecision return the best order decision
-    OrderDecision findBestOrderDecision(
-        const int period, const Order& order) override;
+    
 
 public:
     /* Constructors and destructor */

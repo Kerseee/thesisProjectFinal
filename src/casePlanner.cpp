@@ -247,6 +247,16 @@ void CaseExperimentor::addIndDemands(
     this->ind_demands = &demands;
 }
 
+// findBestOrderDecision return the best order decision
+OrderDecision CaseExperimentor::findBestOrderDecision(
+    const int period, const Order& order
+){
+    OrderDecision decision(order);
+    this->processOrder(period, decision);
+    decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
+    return decision;
+}
+
 // demandJoin return a demand map copied from org_demand and add elements
 // {{day, roomtype}}:0} for those day that not in org_demand but in days.
 std::map<data::tuple2d, int> CaseExperimentor::demandJoin(
@@ -494,15 +504,15 @@ void DeterExperimentor::processOrder(const int period, OrderDecision& od){
 }
 
 
-// findBestOrderDecision return the best order decision
-OrderDecision DeterExperimentor::findBestOrderDecision(
-    const int period, const Order& order
-){
-    OrderDecision decision(order);
-    this->processOrder(period, decision);
-    decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
-    return decision;
-}
+// // findBestOrderDecision return the best order decision
+// OrderDecision DeterExperimentor::findBestOrderDecision(
+//     const int period, const Order& order
+// ){
+//     OrderDecision decision(order);
+//     this->processOrder(period, decision);
+//     decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
+//     return decision;
+// }
 
 // addEstIndDemands add the estimated future individual demands. 
 void DeterExperimentor::addEstIndDemands(
@@ -515,16 +525,33 @@ void DeterExperimentor::addEstIndDemands(
 // // -------------------------- StochExperimentor -------------------------
 // // ======================================================================
 
-// StochExperimentor::StochExperimentor(){
-//     this->estimated_ind_demands = nullptr;
-// }
+StochExperimentor::StochExperimentor(){
+    this->estimated_ind_demands = nullptr;
+}
 
-// StochExperimentor::StochExperimentor(const data::CaseData& data)
-//     :CaseExperimentor(data)
-// {
-//     this->scale = &data.scale;
-//     this->estimated_ind_demands = nullptr;
-//     this->result.num_periods = data.scale.booking_period;
+StochExperimentor::StochExperimentor(const data::CaseData& data)
+    :CaseExperimentor(data)
+{
+    this->scale = &data.scale;
+    this->estimated_ind_demands = nullptr;
+    this->result.num_periods = data.scale.booking_period;
+}
+
+// addEstIndDemands add the estimated future individual demands. 
+void StochExperimentor::addEstIndDemands(
+    std::map<int, std::vector<std::map<data::tuple2d, int> > >& est_demands
+){
+    this->estimated_ind_demands = &est_demands;
+}
+
+// // findBestOrderDecision return the best order decision
+// OrderDecision StochExperimentor::findBestOrderDecision(
+//     const int period, const Order& order
+// ){
+//     OrderDecision decision(order);
+//     this->processOrder(period, decision);
+//     decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
+//     return decision;
 // }
 
 // // ======================================================================

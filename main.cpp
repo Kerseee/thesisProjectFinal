@@ -39,18 +39,18 @@ void debug();
 void numericalExperiment();
 
 int main(int argc, const char * argv[]) {
-    // std::string input_folder = "input/CaseStudy/data1/";
-    // std::string output_folder = "results/CaseStudy/";
-    // int num_exper = 0, sample_size = 0;
-    // std::cout << "Please input number of experiment and sample_size:\n";
-    // std::cin >> num_exper >> sample_size;
+    std::string input_folder = "input/CaseStudy/data1/";
+    std::string output_folder = "results/CaseStudy/";
+    int num_exper = 0, sample_size = 0;
+    std::cout << "Please input number of experiment and sample_size:\n";
+    std::cin >> num_exper >> sample_size;
 
-    // planner::MyopicExpersController controller;
-    // controller.runAll(input_folder, num_exper, sample_size);
-    // controller.storeAllResults(output_folder);
-    nlohmann::json j;
-    j["pi"] = 3.41;
-    cout << j;
+    planner::MyopicExpersController controller;
+    controller.runAll(input_folder, num_exper, sample_size);
+    controller.storeAllResults(output_folder);
+    // nlohmann::json j;
+    // j["pi"] = 3.41;
+    // cout << j;
 
     return 0;
 }
