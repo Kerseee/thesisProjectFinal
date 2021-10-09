@@ -40,6 +40,13 @@ ExperimentorResult MyopicExpersController::runPlannerND(
     const int exper_id
 ){
     DeterExperimentor planner(this->data);
+    
+    // // DEBUG
+    // planner.getHotel().print();
+    // exit(1);
+    // // END DEBUG
+
+
     planner.addOrders(this->orders.at(exper_id));
     planner.addIndDemands(this->demands.at(exper_id));
     planner.addEstIndDemands(this->exp_demands);
@@ -105,16 +112,18 @@ void MyopicExpersController::generateEvents(
     const int num_exper, const int sample_size
 ){
     // Create generators
+    std::cout << "Create generators ...\n";
     OrderGenerator gen_order(this->data);
     IndDemandGenerator gen_demand(this->data);
     ExpectedDemandGenerator gen_exp_demand(this->data);
-    EstimatedDemandGenerator gen_est_demand(this->data);
+    // EstimatedDemandGenerator gen_est_demand(this->data);
 
     // Generate orders and demands
+    std::cout << "Generate need data ...\n";
     this->orders = gen_order.generate(num_exper);
     this->demands = gen_demand.generate(num_exper);
     this->exp_demands = gen_exp_demand.generate();
-    this->est_demands = gen_est_demand.generate(sample_size);
+    // this->est_demands = gen_est_demand.generate(sample_size);
 }
 
 
@@ -153,18 +162,34 @@ void MyopicExpersController::runPlanner(
 // please call storeAllResults(folder) and input the result-folder path.
 void MyopicExpersController::runAll(
     const std::string& data_folder, const int num_exper, const int sample_size
-){
+){ 
     // Read all data
+    std::cout << "Reading data in " << data_folder << " ...\n";
     this->readDataFolder(data_folder);
 
     // Generate events
+    std::cout << "GenerateEvents ...\n";
     this->generateEvents(num_exper, sample_size);
+    this->debug();
     
     // Create planners
+    std::cout << "Run Planners ...\n";
     this->runPlanner("ND", num_exper);
+    // std::cout << "Finish planning! \n";
     // this->runPlanner("NS", num_exper);
     // this->runPlanner("AD", num_exper);
     // this->runPlanner("AS", num_exper);
+}
+
+void MyopicExpersController::debug(){
+    // for(auto& demand: this->demands.at(1)){
+    //     std::cout << "Demand " << demand.first << ": "
+    //         << demand.second << "\n";
+    // }
+    // for(auto& order: this->orders.at(1)){
+    //     std::cout << "Order " << order.first << ": \n"
+    //         << order.second << "\n";
+    // }
 }
 
 // storeResult store the result of given planner type
@@ -245,11 +270,13 @@ void MyopicExpersController::storeResult(
 // storeResults store all results into folder
 // Please make sure there is "/" for mac or "\" for windows after folder
 void MyopicExpersController::storeAllResults(const std::string& folder){
+    std::cout << "Store all...\n";
     createRelativeFolder(folder);
     this->storeResult("ND", folder + "ND_result.csv");
     this->storeResult("NS", folder + "NS_result.csv");
     this->storeResult("AD", folder + "AD_result.csv");
     this->storeResult("AS", folder + "AS_result.csv");
+    std::cout << "Finish storing!\n";
 }
 
 }

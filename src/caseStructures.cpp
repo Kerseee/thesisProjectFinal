@@ -109,6 +109,7 @@ void OrderDecision::computeUpgradedRooms(){
 void OrderDecision::refreshUpgradeInfo(){
     this->computeUpgradeFee();
     this->computeUpgradedRooms();
+    this->revenue = this->order->price + this->total_upgrade_fee;
 }
 
 // ======================================================================
@@ -366,6 +367,8 @@ std::ostream& operator<<(std::ostream& os, const planner::Order& order){
 std::ostream& operator<<(std::ostream& os, const planner::OrderDecision& od){
     os << "Order information:"
        << "------------------------------------------------------------\n"
+       << "Order: \n" << *od.order
+       << "acceptable: " << od.acceptable << "\n"
        << "accepted: " << od.accepted << "\n"
        << "revenue: " << od.revenue << "\n"
        << "upgrade_fee: " << od.total_upgrade_fee << "\n"

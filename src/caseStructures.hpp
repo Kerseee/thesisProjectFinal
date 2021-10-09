@@ -32,7 +32,7 @@ struct OrderDecision {
     double exp_acc_togo; // expected value togo if this order is accepted
     double exp_rej_togo; // expected value togo if this order is rejected
     double total_upgrade_fee; // upgrade fee of this order
-    double revenue; // price + upgrade_fee if accepted, 0 otherwise
+    double revenue; // price + upgrade_fee
     bool acceptable;    // 1 if this order is acceptable
     bool accepted;  // 1 if this order is accepted
 
@@ -51,8 +51,8 @@ struct OrderDecision {
     // computeUpgradedRooms compute the number of rooms for each room type
     // after upgraded, with this->order and this.upgrade_info
     void computeUpgradedRooms();
-    // refreshUpgradeInfo() refresh the upgrade fee and upgrade rooms with
-    // this->upgrade_info
+    // refreshUpgradeInfo() refresh the upgrade fee and upgrade rooms and 
+    // revenue with this->upgrade_info
     void refreshUpgradeInfo();
 };
 

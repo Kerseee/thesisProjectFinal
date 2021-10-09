@@ -3,12 +3,16 @@
 TODO:
 
 - 寫 controller 存檔 (V)
-- 先測 deter
+- 先測 deter (V)
+
 
 - 補完 StochExperimentor
 - 補完 AdjExperimentor
 - 補完 ADExperimentor
 - 補完 ASExperimentor
+
+- 在 controller 寫 Generator 寫檔讀檔
+
 - 補 refactor raiseKeyError
 - 測試！
 

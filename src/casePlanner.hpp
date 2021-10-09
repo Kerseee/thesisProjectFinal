@@ -63,13 +63,15 @@ protected:
 
 public:
     Experimentor();
-    Experimentor(const data::CaseData& data);
     
     // run() run the whole experiment and return result
     virtual ExperimentorResult run() = 0;
 
     // getResult return the result of this experimentor
     ExperimentorResult getResult();
+
+    // getHotel return the hotel of this experimentor
+    Hotel getHotel();
 };
 
 // CaseExperimentor extend the Experimentor, and define the use of CaseData
@@ -116,7 +118,7 @@ protected:
 
     // decide() is called by findBestOrderDecision, it go through the
     // upgrade algorithm and store the upgraded information into od. 
-    void decide(const int period, OrderDecision& od);
+    void processOrder(const int period, OrderDecision& od);
 
     // findBestOrderDecision return the best order decision
     OrderDecision findBestOrderDecision(

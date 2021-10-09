@@ -17,12 +17,14 @@ namespace planner {
 // ======================================================================
 
 Experimentor::Experimentor(){}
-Experimentor::Experimentor(const data::CaseData& data)
-    :hotel(data), revenue(0), result(){}
+
+// getHotel return the hotel of this experimentor
+Hotel Experimentor::getHotel(){
+    return this->hotel;
+}
 
 // handleOrder handle the order received in given period and return revenue
 double Experimentor::handleOrder(const int period, const Order& order){
-    
     // Check if the order is acceptable
     if(!this->isAcceptable(order)){
         this->result.decisions[period] = OrderDecision(order);
@@ -42,7 +44,7 @@ double Experimentor::handleOrder(const int period, const Order& order){
 
     // Handel booking error
     if(!success){
-        std::cout << "Error in run1Period: Booking error at period "
+        std::cout << "Error in handleOrder: Booking error at period "
             << period << " with decision info:" << decision;
         exit(1);
     }
@@ -92,7 +94,6 @@ double Experimentor::run1Period(
 
 // isAcceptable check if this order is acceptable with or without upgrade    
 bool Experimentor::isAcceptable(const Order& order){
-    
     // If given order is an empty order then return false
     if(!order.is_order) return false;
 
@@ -169,6 +170,7 @@ double Experimentor::getRevIndDemand(std::map<data::tuple2d, int> acc_demand){
 
 // booking book the hotel rooms and return the revenue
 bool Experimentor::booking(const OrderDecision& decision){
+
     // If this order is an empty order, then don't book and don't report error.
     if(!decision.order->is_order) return true;
     // If this order is not accepted, then don't book and don't report error.
@@ -192,6 +194,7 @@ bool Experimentor::booking(const OrderDecision& decision){
 bool Experimentor::booking(
     const std::map<data::tuple2d, int>& ind_demand
 ){
+    
     // Check if there is any invalid booking
     for(auto& demand: ind_demand){
         int day = std::get<0>(demand.first), room = std::get<1>(demand.first);
@@ -224,9 +227,8 @@ CaseExperimentor::CaseExperimentor(){
     this->revenue = 0;
 }
 
-CaseExperimentor::CaseExperimentor(const data::CaseData& data)
-    :Experimentor(data)
-{
+CaseExperimentor::CaseExperimentor(const data::CaseData& data){
+    this->hotel = Hotel(data);
     this->scale = nullptr;
     this->orders = nullptr;
     this->ind_demands = nullptr;
@@ -317,11 +319,12 @@ DeterExperimentor::DeterExperimentor(const data::CaseData& data)
     this->result.num_periods = data.scale.booking_period;
 }
 
-// decide() is called by findBestOrderDecision, it go through the
+// processOrder() is called by findBestOrderDecision, it go through the
 // upgrade algorithm and store the upgraded information into od. 
-void DeterExperimentor::decide(const int period, OrderDecision& od){
+void DeterExperimentor::processOrder(const int period, OrderDecision& od){
+    
     // Error message
-    std::string location = "DeterExperimentor::decide";
+    std::string location = "DeterExperimentor::processOrder";
 
     // Fetch the information needed in this function
     const auto& req_rooms = od.order->request_rooms;
@@ -486,7 +489,7 @@ void DeterExperimentor::decide(const int period, OrderDecision& od){
     auto remain = this->hotel.showTryBooking(od);
     auto exp_demand_if_acc_order = this->getAcceptedIndDemand(demand, remain);
     auto exp_demand_if_rej_order = this->getAcceptedIndDemand(demand);
-    od.exp_acc_togo = this->getRevIndDemand(exp_demand_if_acc_order);
+    od.exp_acc_togo = this->getRevIndDemand(exp_demand_if_acc_order) + od.revenue;
     od.exp_rej_togo = this->getRevIndDemand(exp_demand_if_rej_order);
 }
 
@@ -496,7 +499,7 @@ OrderDecision DeterExperimentor::findBestOrderDecision(
     const int period, const Order& order
 ){
     OrderDecision decision(order);
-    this->decide(period, decision);
+    this->processOrder(period, decision);
     decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
     return decision;
 }

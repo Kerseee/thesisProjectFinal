@@ -92,6 +92,8 @@ public:
     // storeResults store all results into folder
     // Please make sure there is "/" for mac or "\" for windows after folder
     void storeAllResults(const std::string& folder);    
+
+    void debug();
 };
 
 
