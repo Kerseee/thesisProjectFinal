@@ -504,16 +504,6 @@ void DeterExperimentor::processOrder(const int period, OrderDecision& od){
 }
 
 
-// // findBestOrderDecision return the best order decision
-// OrderDecision DeterExperimentor::findBestOrderDecision(
-//     const int period, const Order& order
-// ){
-//     OrderDecision decision(order);
-//     this->processOrder(period, decision);
-//     decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
-//     return decision;
-// }
-
 // addEstIndDemands add the estimated future individual demands. 
 void DeterExperimentor::addEstIndDemands(
     const std::map<int, std::map<data::tuple2d, int> >& est_demands
@@ -544,15 +534,218 @@ void StochExperimentor::addEstIndDemands(
     this->estimated_ind_demands = &est_demands;
 }
 
-// // findBestOrderDecision return the best order decision
-// OrderDecision StochExperimentor::findBestOrderDecision(
-//     const int period, const Order& order
-// ){
-//     OrderDecision decision(order);
-//     this->processOrder(period, decision);
-//     decision.accepted = (decision.exp_acc_togo > decision.exp_rej_togo);
-//     return decision;
-// }
+// processOrder() is called by findBestOrderDecision, it go through the
+// upgrade algorithm and store the upgraded information into od. 
+void StochExperimentor::processOrder(const int period, OrderDecision& od){
+
+    // Error message
+    std::string location = "StochExperimentor::processOrder";
+
+    // Fetch the information needed in this function
+    const auto& req_rooms = od.order->request_rooms;
+    const auto& cap = 
+        this->hotel.getAllMinCapInPeriods(od.order->request_days);
+    auto it = this->estimated_ind_demands->find(period);
+    if(it == this->estimated_ind_demands->end()){
+        raiseKeyError<int>(location, period, "estimated_demands");
+    }
+    // Make sure key exist in demand for following use.
+    std::vector<std::map<data::tuple2d, int> > demands;
+    for(const auto& org_demand: it->second){
+        demands.push_back(
+            this->demandJoin(org_demand, od.order->request_days)
+        );
+    }
+    
+    // Initialize all containters used in this function
+    std::map<int, int> upg_in, upg_out, must_upg;
+    std::map<data::tuple2d, int> upg_info;
+    for(int i = 1; i <= this->hotel.getNumRoomType(); i++){
+        upg_in[i] = 0;
+        upg_out[i] = 0;
+        must_upg[i] = std::max(req_rooms.at(i) - cap.at(i), 0);
+    }
+    for(auto& pair: this->hotel.getUpgradePairs()){
+        upg_info[pair] = 0;
+    }
+    double demands_size = static_cast<double>(demands.size());
+    
+    // Define lambda function used in this function
+    auto getSpace = [&](int s, int i) -> int {
+        int space = this->hotel.getNumAvailableRooms(s, i) - req_rooms.at(i)
+                    + upg_out.at(i) - upg_in.at(i);
+        return space;
+    };
+    auto getSpaces = [&](int i) -> std::map<int, int> {
+        std::map<int, int> spaces;
+        for(const auto& s: od.order->request_days){
+            spaces[s] = getSpace(s, i);
+        }
+        return spaces;
+    };
+    auto getBNSpace = [&](int i) -> int {
+        return cap.at(i) - req_rooms.at(i) + upg_out.at(i) - upg_in.at(i);
+    };
+    auto upgGain = [&](int num, int from, int to) -> double {
+        auto it = od.order->upgrade_fees.find({from, to});
+        if(it == od.order->upgrade_fees.end()) return 0;
+        return num * od.order->request_days.size() * it->second;
+    };
+    auto upgIndGain = [&](
+        int num, int space, int ind, double price) -> double 
+    {
+        if(space + num <= 0) return 0;
+        if(space <= 0) return price * std::min(num + space, ind);
+        if(space >= ind) return 0;
+        return price * std::min(num, ind - space);
+    };
+    auto upgIndLoss = [&](
+        int num, int space, int ind, double price) -> double 
+    {
+        return price * (num - std::min(std::max(space - ind, 0), num));
+    };
+    auto upgUtil = [&](int num, int from, int to) -> double {
+        if(num == 0) return 0;
+        double upg_gain = upgGain(num, from, to);
+        double util = upg_gain;
+        std::map<int, int> space_from = getSpaces(from);
+        std::map<int, int> space_to = getSpaces(to);
+        std::map<int, double> price_from;
+        std::map<int, double> price_to;
+        for(const auto& s: od.order->request_days){
+            price_from[s] = this->hotel.getPrice(s, from);
+            price_to[s] = this->hotel.getPrice(s, to);
+        }
+        double sum_util_scenario = 0;
+        for(const auto& demand: demands){
+            double util_scenario = 0;
+            for(const auto& s: od.order->request_days){
+                int ind_from = demand.at({s, from});
+                int ind_to = demand.at({s, to});
+                double upg_gain_ind = upgIndGain(
+                    num, space_from.at(s), 
+                    demand.at({s, from}), price_from.at(s)
+                );
+                double upg_loss_ind = upgIndLoss(
+                    num, space_to.at(s), 
+                    demand.at({s, to}), price_to.at(s)
+                );
+                util_scenario += upg_gain_ind - upg_loss_ind;
+            }
+            sum_util_scenario += util_scenario / demands_size;
+        }
+        util += sum_util_scenario;
+        return util;
+    };
+    auto upgUB = [&](int from, int to) -> int {
+        int limit_to = getBNSpace(to);
+        int limit_from = req_rooms.at(from) - upg_out.at(from);
+        return std::min(limit_from, limit_to);
+    };
+    auto upgLB = [&](int i) -> int{
+        return std::max(-getBNSpace(i), 0);  
+    };
+
+    // Must upgrade
+    for(int i = this->hotel.getNumRoomType(); i >= 1; i--){
+        if(must_upg.at(i) <= 0) continue;
+
+        // First compute lower bound of upgrade from type-i
+        int lb = upgLB(i);
+        while(lb > 0){
+            int opt_to = 0, opt_num = 0;
+            double min_loss_rate = INT_MAX;
+            
+            for(const auto& j: this->hotel.getUpgradeUpper(i)){
+                int ub = upgUB(i, j);
+
+                std::map<int, int> spaces = getSpaces(j);
+                std::map<int, double> price;
+                for(const auto& s: od.order->request_days){
+                    price[s] = this->hotel.getPrice(s, j);
+                }
+                for(int x = 1; x <= ub; x++){
+                    double loss = 0;
+                    for(const auto& demand: demands){
+                        double loss_scenario = 0;
+                        for(const auto& s: od.order->request_days){
+                            loss_scenario += upgIndLoss(
+                                x, spaces.at(s), demand.at({s, j}), price.at(s)
+                            );
+                        }
+                        loss += loss_scenario / demands_size;
+                    }
+                    double loss_rate = loss/static_cast<double>(x);
+                    if((loss_rate < min_loss_rate) || 
+                       (loss_rate == min_loss_rate && x > opt_num) ||
+                       (loss_rate == min_loss_rate && x == opt_num && j < opt_to)
+                    ){
+                        opt_to = j, opt_num = x;
+                        min_loss_rate = loss_rate;
+                    }
+                }
+            }
+            int upg_num = std::min(lb, opt_num);
+            upg_info[{i, opt_to}] += upg_num;
+            upg_out[i] += upg_num;
+            upg_in[opt_to] += upg_num;
+            int new_lb = upgLB(i);
+            if(new_lb >= lb){
+                std::cout << "Error: must upgrade error in " 
+                    << location << "\n";
+                exit(1);
+            }
+            lb = upgLB(i);
+        }
+    }
+
+    // Find other upgrades if there has util
+    bool has_util = true;
+    while(has_util){
+        int opt_from = 0, opt_to = 0, upg_num = 0;
+        double max_util = 0.0;
+        has_util = false;
+        for(int i = 1; i <= this->hotel.getNumRoomType(); i++){
+            for(const auto& j: this->hotel.getUpgradeUpper(i)){
+                int ub = upgUB(i, j);
+                for(int x = 0; x <= ub; x++){
+                    double util = upgUtil(x, i, j);
+                    if(util > max_util){
+                        opt_from = i, opt_to = j, upg_num = x;
+                        max_util = util;
+                        has_util = true;
+                    }
+                }
+            }
+        }
+        if(!has_util) {
+            break;
+        }
+        upg_info[{opt_from, opt_to}] += upg_num;
+        upg_out[opt_from] += upg_num;
+        upg_in[opt_to] += upg_num;
+    }
+
+    // Store upgrade info to decision
+    od.upgrade_info = upg_info;
+    od.refreshUpgradeInfo();
+    
+    // Store revenue-togo to decision
+    auto remain = this->hotel.showTryBooking(od);
+    double exp_acc_togo = 0;
+    double exp_rej_togo = 0;
+    for(const auto& demand: demands){
+        auto exp_demand_if_acc = this->getAcceptedIndDemand(demand, remain);
+        auto exp_demand_if_rej = this->getAcceptedIndDemand(demand);
+        auto exp_rev_acc = this->getRevIndDemand(exp_demand_if_acc);
+        auto exp_rev_rej = this->getRevIndDemand(exp_demand_if_rej);
+        exp_acc_togo += exp_rev_acc / demands_size;
+        exp_rej_togo += exp_rev_rej / demands_size;
+    }
+    od.exp_acc_togo = exp_acc_togo + od.revenue;
+    od.exp_rej_togo = exp_rej_togo;
+
+}
 
 // // ======================================================================
 // // --------------------------- ADExperimentor ---------------------------

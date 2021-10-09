@@ -5,7 +5,8 @@ TODO:
 - 寫 controller 存檔 (V)
 - 先測 deter (V)
 
-- 補完 StochExperimentor
+- 補完 StochExperimentor (V)
+- 測 Stoch
 - 補完 AdjExperimentor
 - 補完 ADExperimentor
 - 補完 ASExperimentor
@@ -24,6 +25,7 @@ TODO:
 - 寫 CaseData 的 checker
 - 寫 Generator 的寫檔
 - 寫 findBestOrder 的 check
+- 把 processOrder refactor 成 class or struct
 
 ================================================================================================
 思考：

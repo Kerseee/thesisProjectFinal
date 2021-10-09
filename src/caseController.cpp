@@ -40,30 +40,23 @@ ExperimentorResult MyopicExpersController::runPlannerND(
     const int exper_id
 ){
     DeterExperimentor planner(this->data);
-    
-    // // DEBUG
-    // planner.getHotel().print();
-    // exit(1);
-    // // END DEBUG
-
-
     planner.addOrders(this->orders.at(exper_id));
     planner.addIndDemands(this->demands.at(exper_id));
     planner.addEstIndDemands(this->exp_demands);
     return planner.run();
 }
 
-// // runPlannerNS create a StochExperimentor, run one experiment, 
-// // and then return result.
-// ExperimentorResult MyopicExpersController::runPlannerNS(
-//     const int exper_id
-// ){
-//     StochExperimentor planner(this->data);
-//     planner.addOrders(this->orders.at(exper_id));
-//     planner.addIndDemands(this->demands.at(exper_id));
-//     planner.addEstIndDemands(this->est_demands);
-//     return planner.run();
-// }
+// runPlannerNS create a StochExperimentor, run one experiment, 
+// and then return result.
+ExperimentorResult MyopicExpersController::runPlannerNS(
+    const int exper_id
+){
+    StochExperimentor planner(this->data);
+    planner.addOrders(this->orders.at(exper_id));
+    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addEstIndDemands(this->est_demands);
+    return planner.run();
+}
 
 // // runPlannerAD create a ADExperimentor, run one experiment, 
 // // and then return result.
@@ -116,14 +109,14 @@ void MyopicExpersController::generateEvents(
     OrderGenerator gen_order(this->data);
     IndDemandGenerator gen_demand(this->data);
     ExpectedDemandGenerator gen_exp_demand(this->data);
-    // EstimatedDemandGenerator gen_est_demand(this->data);
+    EstimatedDemandGenerator gen_est_demand(this->data);
 
     // Generate orders and demands
     std::cout << "Generate need data ...\n";
     this->orders = gen_order.generate(num_exper);
     this->demands = gen_demand.generate(num_exper);
     this->exp_demands = gen_exp_demand.generate();
-    // this->est_demands = gen_est_demand.generate(sample_size);
+    this->est_demands = gen_est_demand.generate(sample_size);
 }
 
 
@@ -137,10 +130,11 @@ void MyopicExpersController::runPlanner(
             planner_result[e] = this->runPlannerND(e);
         }
     } 
-    // else if(planner_type == "NS"){
-    //     for(int e = 1; e <= num_exper; e++){
-    //         planner_result[e] = this->runPlannerNS(e);
-    //     }
+    else if(planner_type == "NS"){
+        for(int e = 1; e <= num_exper; e++){
+            planner_result[e] = this->runPlannerNS(e);
+        }
+    }
     // } else if(planner_type == "AD"){
     //     for(int e = 1; e <= num_exper; e++){
     //         planner_result[e] = this->runPlannerAD(e);
@@ -175,10 +169,11 @@ void MyopicExpersController::runAll(
     // Create planners
     std::cout << "Run Planners ...\n";
     this->runPlanner("ND", num_exper);
-    // std::cout << "Finish planning! \n";
-    // this->runPlanner("NS", num_exper);
+    
+    this->runPlanner("NS", num_exper);
     // this->runPlanner("AD", num_exper);
     // this->runPlanner("AS", num_exper);
+    std::cout << "Finish planning! \n";
 }
 
 void MyopicExpersController::debug(){

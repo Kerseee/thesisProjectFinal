@@ -45,9 +45,9 @@ private:
     // and then return result.
     ExperimentorResult runPlannerND(const int exper_id);
     
-    // // runPlannerNS create a StochExperimentor, run one experiment, 
-    // // and then return result.
-    // ExperimentorResult runPlannerNS(const int exper_id);
+    // runPlannerNS create a StochExperimentor, run one experiment, 
+    // and then return result.
+    ExperimentorResult runPlannerNS(const int exper_id);
     
     // // runPlannerAD create a ADExperimentor, run one experiment, 
     // // and then return result.

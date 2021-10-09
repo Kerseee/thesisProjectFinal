@@ -95,6 +95,8 @@ protected:
     OrderDecision findBestOrderDecision(
         const int period, const Order& order) override;
     
+    // processOrder() is called by findBestOrderDecision, it go through the
+    // upgrade algorithm and store the upgraded information into od.
     virtual void processOrder(const int period, OrderDecision& od) = 0;
 
 public:
@@ -122,11 +124,9 @@ protected:
  
     /* Protected methods */
 
-    // decide() is called by findBestOrderDecision, it go through the
+    // processOrder() is called by findBestOrderDecision, it go through the
     // upgrade algorithm and store the upgraded information into od. 
     void processOrder(const int period, OrderDecision& od);
-
-    
 
 public:
     /* Constructors and destructor */
@@ -150,9 +150,9 @@ protected:
 
     /* Protected methods */
 
-    // findBestOrderDecision return the best order decision
-    OrderDecision findBestOrderDecision(
-        const int period, const Order& order) override;
+    // processOrder() is called by findBestOrderDecision, it go through the
+    // upgrade algorithm and store the upgraded information into od. 
+    void processOrder(const int period, OrderDecision& od);
 
 public:
     StochExperimentor();
