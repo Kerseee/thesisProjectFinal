@@ -34,14 +34,9 @@ MyopicExpersController::MyopicExpersController(){
     this->has_data = false;
 }
 
-// setNumExperPlan set the number of experiments for running planners
-void MyopicExpersController::setNumExperPlan(const int num){
-    this->num_exper_plan = num;
-}
-
 // setNumExperGen set the number of experiments for generating evenets
-void MyopicExpersController::setNumExperGen(const int num){
-    this->num_exper_gen = num;
+void MyopicExpersController::setNumExperiments(const int num){
+    this->num_experiments = num;
 }
 
 // setSampleSive set the sample size for stochastic planners
@@ -52,6 +47,17 @@ void MyopicExpersController::setSampleSize(const int num){
 // setAlphas set the alpha for running adjusted planners
 void MyopicExpersController::setAlphas(const std::vector<double>& alphas){
     this->alphas = alphas;
+}
+
+// setInputFolder set the input folder of this controller
+void MyopicExpersController::setInputFolder(std::string folder){
+    this->input_folder = folder;
+}
+
+// setOutputFolder set the output folder of this controller
+void MyopicExpersController::setOutputFolder(std::string folder){
+    this->output_folder = folder;
+    planner::createRelativeFolder(folder);
 }
 
 bool MyopicExpersController::hasValidSampleSize(){
@@ -71,18 +77,10 @@ bool MyopicExpersController::hasValidAlphas(){
     }
     return true;
 }
-bool MyopicExpersController::hasValidNumExperPlan(){
-    if(this->num_exper_plan <= 0){
-        std::cout << "Number of experiments for running planners are not set." 
-            << "Please call setNumExperPlan() first!\n";
-        return false;
-    }
-    return true;
-}
-bool MyopicExpersController::hasValidNumExperGen(){
-    if(this->num_exper_gen <= 0){
-        std::cout << "Number of experiments for gerenrating events are not set." 
-            << "Please call setNumExperGen() first!\n";
+bool MyopicExpersController::hasValidNumExperiments(){
+    if(this->num_experiments <= 0){
+        std::cout << "Number of experiments are not set." 
+            << "Please call setNumExperiments() first!\n";
         return false;
     }
     return true;
@@ -115,48 +113,40 @@ void MyopicExpersController::setAlphas(
 
 // runPlannerND create a DeterExperimentor, run one experiment, 
 // and then return result.
-ExperimentorResult MyopicExpersController::runPlannerND(
-    const int exper_id
-){
+ExperimentorResult MyopicExpersController::runPlannerND(){
     DeterExperimentor planner(this->data);
-    planner.addOrders(this->orders.at(exper_id));
-    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addOrders(this->orders);
+    planner.addIndDemands(this->demands);
     planner.addEstIndDemands(this->exp_demands);
     return planner.run();
 }
 
 // runPlannerNS create a StochExperimentor, run one experiment, 
 // and then return result.
-ExperimentorResult MyopicExpersController::runPlannerNS(
-    const int exper_id
-){
+ExperimentorResult MyopicExpersController::runPlannerNS(){
     StochExperimentor planner(this->data);
-    planner.addOrders(this->orders.at(exper_id));
-    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addOrders(this->orders);
+    planner.addIndDemands(this->demands);
     planner.addEstIndDemands(this->est_demands);
     return planner.run();
 }
 
 // runPlannerAD create a ADExperimentor, run one experiment, 
 // and then return result.
-ExperimentorResult MyopicExpersController::runPlannerAD(
-    const int exper_id, const double alpha
-){
+ExperimentorResult MyopicExpersController::runPlannerAD(const double alpha){
     ADExperimentor planner(this->data, alpha);
-    planner.addOrders(this->orders.at(exper_id));
-    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addOrders(this->orders);
+    planner.addIndDemands(this->demands);
     planner.addEstIndDemands(this->exp_demands);
     return planner.run();
 }
 
 // runPlannerAS create a ASExperimentor, run one experiment, 
 // and then return result.
-ExperimentorResult MyopicExpersController::runPlannerAS(
-    const int exper_id, const double alpha
-){
+ExperimentorResult MyopicExpersController::runPlannerAS(const double alpha){
     ASExperimentor planner(this->data, alpha);
-    planner.addOrders(this->orders.at(exper_id));
-    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addOrders(this->orders);
+    planner.addIndDemands(this->demands);
     planner.addEstIndDemands(this->est_demands);
     return planner.run();
 }
@@ -178,117 +168,92 @@ void MyopicExpersController::readDataFolder(const std::string& folder){
     this->has_data = true;
 }
 
-// generateEvents generates and stores all type of generators, 
-// including orders, demands, exp_demands, est_demands
-void MyopicExpersController::generateEvents(){
-
-    if(!this->hasValidNumExperGen() || !this->hasValidSampleSize()){
-        return;
-    }
-
-    // Create generators
-    std::cout << "Create generators ...\n";
-    OrderGenerator gen_order(this->data);
-    IndDemandGenerator gen_demand(this->data);
-    ExpectedDemandGenerator gen_exp_demand(this->data);
-    EstimatedDemandGenerator gen_est_demand(this->data);
-
-    // Generate orders and demands
-    std::cout << "Generate need data ...\n";
-    this->orders = gen_order.generate(this->num_exper_gen);
-    this->demands = gen_demand.generate(this->num_exper_gen);
-    this->exp_demands = gen_exp_demand.generate();
-    this->est_demands = gen_est_demand.generate(sample_size);
+// generateOrders recreate the orders and replace current this->orders
+void MyopicExpersController::generateOrders(){
+    if(!this->checkHasData()) return;
+    this->orders.clear();
+    OrderGenerator gen(this->data);
+    this->orders = gen.generate();
 }
 
+// generateDemands recreate the demands and replace current this->demands
+void MyopicExpersController::generateDemands(){
+    if(!this->checkHasData()) return;
+    this->demands.clear();
+    IndDemandGenerator gen(this->data);
+    this->demands = gen.generate();
+}
 
-// runPlanner run the planner num_exper times
-void MyopicExpersController::runPlanner(const std::string& planner_type){
-    if(!this->hasValidNumExperPlan()) return;
-    
-    
-    if(planner_type == "ND"){
-        std::map<int, ExperimentorResult> planner_result;
-        for(int e = 1; e <= this->num_exper_plan; e++){
-            planner_result[e] = this->runPlannerND(e);
-        }
-        this->results[planner_type] = planner_result;
-    } 
-    else if(planner_type == "NS"){
-        std::map<int, ExperimentorResult> planner_result;
-        for(int e = 1; e <= this->num_exper_plan; e++){
-            planner_result[e] = this->runPlannerNS(e);
-        }
-        this->results[planner_type] = planner_result;
-    }
-    else if(planner_type == "AD"){
-        for(const auto& alpha: this->alphas){
-            std::map<int, ExperimentorResult> planner_result;
-            for(int e = 1; e <= this->num_exper_plan; e++){
-                planner_result[e] = this->runPlannerAD(e, alpha);
-            }
-            std::string name = planner_type + "_" + std::to_string(alpha);
-            this->results[name] = planner_result;
-        }
+// generateExpDemands generate expected demands for deterministic planners
+void MyopicExpersController::generateExpDemands(){
+    if(!this->checkHasData()) return;
+    this->exp_demands.clear();
+    ExpectedDemandGenerator gen(this->data);
+    this->exp_demands = gen.generate();
+}
+
+// generateEstDemands generate expected demands for stochastic planners
+void MyopicExpersController::generateEstDemands(){
+    if(!this->checkHasData() || !this->hasValidSampleSize()) return;
+    this->est_demands.clear();
+    EstimatedDemandGenerator gen(this->data);
+    this->est_demands = gen.generate(this->sample_size);
+}
+
+// runPlanner run all planners and store results
+void MyopicExpersController::runPlanners(const int exper_id){
+    if(!this->hasValidAlphas()) return;
+
+    // Generate orders and demand for this experiment
+    this->generateOrders();
+    this->generateDemands();
+
+    // Run ND
+    ExperimentorResult result_ND = this->runPlannerND();
+    this->appendResultToFile(exper_id, "ND", result_ND);
+
+    // Run NS
+    ExperimentorResult result_NS = this->runPlannerNS();
+    this->appendResultToFile(exper_id, "NS", result_NS);
+
+    for(const auto& alpha: this->alphas){
+        // Run AD
+        ExperimentorResult result_AD = this->runPlannerAD(alpha);
+        std::string name_AD = "AD_" + std::to_string(alpha);
+        this->appendResultToFile(exper_id, name_AD, result_AD);
         
+        // Run AS
+        ExperimentorResult result_AS = this->runPlannerAS(alpha);
+        std::string name_AS = "AS_" + std::to_string(alpha);
+        this->appendResultToFile(exper_id, name_AS, result_AS);
     }
-    else if(planner_type == "AS"){
-        for(const auto& alpha: this->alphas){
-            std::map<int, ExperimentorResult> planner_result;
-            for(int e = 1; e <= this->num_exper_plan; e++){
-                planner_result[e] = this->runPlannerAS(e, alpha);
-            }
-            std::string name = planner_type + "_" + std::to_string(alpha);
-            this->results[name] = planner_result;
-        }
-    } 
-    else{
-        std::cout << "Planner " << planner_type << "no exist in controller!\n";
-        return;
-    }
-    
 }
 
-// runAll go through processes including reading data, generating events,
-// and running planners. If you want to store results after calling runAll,
-// please call storeAllResults(folder) and input the result-folder path.
-void MyopicExpersController::runAll(const std::string& data_folder){ 
-    
-    // Read all data
-    std::cout << "Reading data in " << data_folder << " ...\n";
-    this->readDataFolder(data_folder);
+void MyopicExpersController::setResultFileNames(){
+    std::string prefix = this->output_folder;
+    std::string suffix = "_result.csv";
 
-    // Generate events
-    std::cout << "GenerateEvents ...\n";
-    this->generateEvents();
-    
-    // Create planners
-    std::cout << "Run Planners ...\n";
-    this->runPlanner("ND");
-    this->runPlanner("NS");
-    this->runPlanner("AD");
-    this->runPlanner("AS");
-    std::cout << "Finish planning! \n";
-}
+    auto getFileNames = [&](std::string name) -> std::string {
+        return prefix + name + suffix;
+    };
 
-void MyopicExpersController::debug(){
-
-}
-
-// storeResult store the result of given planner type
-void MyopicExpersController::storeResult(
-    const std::string& planner_type, const std::string& path
-){
-    // Check if result of planner exist
-    auto it = this->results.find(planner_type);
-    if(it == this->results.end()){
-        std::cout << "Type " << planner_type 
-            << " does not exist in results!\n";
-        return;
+    this->result_file_names["ND"] = getFileNames("ND");
+    this->result_file_names["NS"] = getFileNames("NS");
+    for(const auto& alpha: this->alphas){
+        std::string name_AD = "AD_" + std::to_string(alpha);
+        std::string name_AS = "AS_" + std::to_string(alpha); 
+        this->result_file_names[name_AD] = getFileNames(name_AD);
+        this->result_file_names[name_AS] = getFileNames(name_AS);
     }
-    // Write header of result file
-    std::ofstream out;
-    out.open(path);
+}
+
+// prepareResultsFiles write the headers of each planner into result files
+void MyopicExpersController::prepareResultsFiles(){
+    
+    // Set the result file names
+    this->setResultFileNames();
+    
+    // Write header
     std::string head = "Experiment,revenue,time,sold_out";
     for(int t = this->data.scale.booking_period; t >= 1; t--){
         head += ",acceptable_t" + std::to_string(t)
@@ -299,67 +264,169 @@ void MyopicExpersController::storeResult(
                 + ",rev_ind_t" + std::to_string(t);
     }
     head += "\n";
-    out << head;
+
+    // Create result files
+    for(const auto& file: this->result_file_names){
+        std::ofstream out;
+        out.open(file.second);
+        out << head;
+        out.close();
+    }
+}
+
+// appendResultToFile append a line of result to the result file of planner
+void MyopicExpersController::appendResultToFile(
+    const int exper_id, 
+    const std::string& planner_name, 
+    const ExperimentorResult& result
+){
+    // Return if no file name exist
+    auto it_file = this->result_file_names.find(planner_name);
+    if(it_file == this->result_file_names.end()){
+        std::cout << "Cannot find the file name of planner " << planner_name
+            << " !\n";
+        return;
+    }
+    
+    // Store result
+    std::ofstream out(it_file->second, std::ofstream::app);
 
     // Write the result into result file
-    for(auto& exper: it->second){
-        int exper_id = exper.first;
-        auto& result = exper.second;
-        std::string msg = std::to_string(exper_id) + "," 
-                        + std::to_string(result.revenue) + ","
-                        + std::to_string(result.runtime) + ","
-                        + std::to_string(result.stop_period);
+    std::string msg = std::to_string(exper_id) + "," 
+                    + std::to_string(result.revenue) + ","
+                    + std::to_string(result.runtime) + ","
+                    + std::to_string(result.stop_period);
 
-        // Write results in all booking periods
-        for(int t = this->data.scale.booking_period; t >= 1; t--){
-            bool acceptable = false, accepted = false;
-            double rev_accept = 0, rev_reject = 0;
-            double rev_order = 0, rev_ind_demand = 0;
-            
-            // Fetch results about decision
-            auto it_decision = result.decisions.find(t);
-            if(it_decision != result.decisions.end()){
-                auto& decision = it_decision->second;
-                acceptable = decision.acceptable;
-                accepted = decision.accepted;
-                rev_accept = decision.exp_acc_togo;
-                rev_reject = decision.exp_rej_togo;
-            }
-            
-            // Fetch results about revenues of order and demand
-            auto it_order_rev = result.order_revenues.find(t);
-            if(it_order_rev != result.order_revenues.end()){
-                rev_order = it_order_rev->second;
-            }
-            auto it_order_demand = result.ind_demand_revenues.find(t);
-            if(it_order_demand != result.ind_demand_revenues.end()){
-                rev_ind_demand = it_order_demand->second;
-            }
-            
-            // Write to file
-            msg += "," + std::to_string(acceptable)
-                    + "," + std::to_string(accepted)
-                    + "," + std::to_string(rev_accept)
-                    + "," + std::to_string(rev_reject)
-                    + "," + std::to_string(rev_order)
-                    + "," + std::to_string(rev_ind_demand);
+    // Write results in all booking periods
+    for(int t = this->data.scale.booking_period; t >= 1; t--){
+        bool acceptable = false, accepted = false;
+        double rev_accept = 0, rev_reject = 0;
+        double rev_order = 0, rev_ind_demand = 0;
+        
+        // Fetch results about decision
+        auto it_decision = result.decisions.find(t);
+        if(it_decision != result.decisions.end()){
+            auto& decision = it_decision->second;
+            acceptable = decision.acceptable;
+            accepted = decision.accepted;
+            rev_accept = decision.exp_acc_togo;
+            rev_reject = decision.exp_rej_togo;
         }
-        msg += "\n";
-        out << msg;
+        
+        // Fetch results about revenues of order and demand
+        auto it_order_rev = result.order_revenues.find(t);
+        if(it_order_rev != result.order_revenues.end()){
+            rev_order = it_order_rev->second;
+        }
+        auto it_order_demand = result.ind_demand_revenues.find(t);
+        if(it_order_demand != result.ind_demand_revenues.end()){
+            rev_ind_demand = it_order_demand->second;
+        }
+        
+        // Write to file
+        msg += "," + std::to_string(acceptable)
+                + "," + std::to_string(accepted)
+                + "," + std::to_string(rev_accept)
+                + "," + std::to_string(rev_reject)
+                + "," + std::to_string(rev_order)
+                + "," + std::to_string(rev_ind_demand);
     }
+    msg += "\n";
+    out << msg;
+
     out.close();
 }
 
-// storeResults store all results into folder
-// Please make sure there is "/" for mac or "\" for windows after folder
-void MyopicExpersController::storeAllResults(const std::string& folder){
-    std::cout << "Store all...\n";
-    for(const auto& result: this->results){
-        std::string name = result.first;
-        std::string path = folder + name + "_result.csv";
-        this->storeResult(name, path);
+// runAll go through processes including reading data, generating events,
+// running planners, and store results.
+void MyopicExpersController::runAll(){ 
+    
+    // Read all data
+    std::cout << "Reading data in " << this->input_folder << " ...\n";
+    this->readDataFolder(this->input_folder);
+
+    // Generate estimated and expected demands for planners
+    std::cout << "Generating expected demands ...\n";
+    this->generateExpDemands();
+
+    std::cout << "Generating estimated demands ...\n";
+    this->generateEstDemands();
+
+    // Prepare the result files
+    std::cout << "Preparing result files ...\n";
+    this->prepareResultsFiles();
+
+    // Run planners
+    std::cout << "Start planning! \n";
+    for(int e = 1; e <= this->num_experiments; e++){
+        std::cout << "Running experiment " << e << " ... ";
+        this->runPlanners(e);
+        std::cout << "done!\n";
     }
-    std::cout << "Finish storing!\n";
 }
+
+void MyopicExpersController::debug(){
+
+}
+
+// storeOrdersToJson store the orders in this controller into json file
+void MyopicExpersController::storeOrdersToJson(const std::string& path){
+}
+
+
+// ======================================================================
+// --------------------------- Transfer json  ---------------------------
+// ======================================================================
+
+// strToTuple2d transfer "1_2" to {1, 2}
+data::tuple2d strToTuple2d(const std::string& str){
+    size_t stop_pos = str.find('_');
+    int first = std::stoi(str.substr(0, stop_pos));
+    int second = std::stoi(str.substr(stop_pos + 1));
+    return std::make_tuple(first, second);
+}
+
+nlohmann::json orderToJson(const Order& order){
+    nlohmann::json j;
+    j["is_order"] = order.is_order;
+    j["price"] = order.price;
+    j["request_days"] = nlohmann::json(order.request_days);
+    std::cout << "Here!!\n";
+    j["request_rooms"] = nlohmann::json(std::map<int, int>());
+    j["upgrade_fees"] = nlohmann::json(std::map<std::string, double>());
+
+    for(const auto& room: order.request_rooms){
+        std::string type = std::to_string(room.first);
+        int num = room.second;
+        j["request_rooms"][type] = num;
+    }
+    for(const auto& upgrade_fee: order.upgrade_fees){
+        const auto& pair = upgrade_fee.first;
+        std::string lower_type = std::to_string(std::get<0>(pair));
+        std::string upper_type = std::to_string(std::get<1>(pair));
+        std::string key = lower_type + "_" + upper_type;
+        double fee = upgrade_fee.second;
+        j["upgrade_fees"][key] = fee;
+    }
+    return j;
+}
+
+Order jsonToOrder(const nlohmann::json& j){
+    Order order;
+    order.is_order = j["is_order"];
+    order.price = j["price"];
+    order.request_days = j["request_days"].get<std::set<int> >();
+    order.request_rooms = j["request_rooms"].get<std::map<int, int> >();
+    
+    for(auto& upgrade_fee: 
+        j["upgrade_fees"].get<std::map<std::string, double> >()
+    ){
+        auto key = strToTuple2d(upgrade_fee.first);
+        auto fee = upgrade_fee.second;
+        order.upgrade_fees[key] = fee;
+    }
+    return order;
+}
+
 
 }

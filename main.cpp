@@ -40,6 +40,7 @@ void numericalExperiment();
 
 int main(int argc, const char * argv[]) {
     
+
     // Create controller
     planner::MyopicExpersController controller;
     
@@ -48,28 +49,21 @@ int main(int argc, const char * argv[]) {
     cout << "Input the path of INPUT folder, and make sure "
         << "there is \\ on windows or / on mac after the folder path:\n";
     cin >> input_folder;
+    controller.setInputFolder(input_folder);
 
     // Input the path of output folder
     std::string output_folder;
     cout << "\nInput the path of OUTPUT folder, and make sure "
         << "there is \\ on windows or / on mac after the folder path:\n";
     cin >> output_folder;
-    planner::createRelativeFolder(output_folder);
+    controller.setOutputFolder(output_folder);
 
     // Set parameters:
-    int num_exper_gen = 0, num_exper_plan = 0, sample_size = 0;
-    
-    cout << "\nInput the number of experiments for generating random events: ";
-    cin >> num_exper_gen;
-    controller.setNumExperGen(num_exper_gen);
+    int num_exper_plan = 0, sample_size = 0;
     
     cout << "\nInput the number of sample size for stochastic planners: ";
     cin >> sample_size;
     controller.setSampleSize(sample_size);
-
-    cout << "\nInput the number of experiments for running planners: ";
-    cin >> num_exper_plan;
-    controller.setNumExperPlan(num_exper_plan);
 
     double from = 0, to = 1, step_size = 0.1;
     cout << "\nInput 3 double for generating alphas for adjusted planners \n"
@@ -78,34 +72,24 @@ int main(int argc, const char * argv[]) {
         << "(all double shoud be inside of [0, 1]):\n";
     cin >> from >> to >> step_size;
     controller.setAlphas(from, to, step_size);
+
+    cout << "\nInput the number of experiments: ";
+    cin >> num_exper_plan;
+    controller.setNumExperiments(num_exper_plan);
+    
     cout << "\nSetting success! Now start running...\n";
 
-    controller.runAll(input_folder);
-    controller.storeAllResults(output_folder);
-    // nlohmann::json j;
-    // j["pi"] = 3.41;
-    // cout << j;
+    // Run
+    controller.runAll();
+
 
     return 0;
 }
 
 void debug(){
-    // Input folders
-    string folder = "";
-    cout << "Input folder name \n (Please add \"\\\" on windows or \"/\" on mac after the folder):\n";
-    cin >> folder;
-    
-    // Build CaseData
-    cout << "\nReading data...\n";
-    data::CaseData data;
-    data.readAllData(folder);
-    cout << data.scale;
+    planner::MyopicExpersController controller;
+    controller.debug();
 
-    // Set State
-    planner::DeterExperimentor myopicND(data);
-    myopicND.run();
-
-    cout << "\nTest End!\n";
 }
 
 void numericalExperiment(){

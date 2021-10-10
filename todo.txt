@@ -2,8 +2,7 @@
 
 TODO:
 
-- controller 的 run all 改成 run 完一個就存一個（直接把 run 跟存檔放一起好了）
-- 寫 generator 的讀寫檔
+- 寫 generator 的讀寫檔: debug: json to order / order to json
 - 設計 main
 - 寫文件
 
