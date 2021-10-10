@@ -34,6 +34,85 @@ MyopicExpersController::MyopicExpersController(){
     this->has_data = false;
 }
 
+// setNumExperPlan set the number of experiments for running planners
+void MyopicExpersController::setNumExperPlan(const int num){
+    this->num_exper_plan = num;
+}
+
+// setNumExperGen set the number of experiments for generating evenets
+void MyopicExpersController::setNumExperGen(const int num){
+    this->num_exper_gen = num;
+}
+
+// setSampleSive set the sample size for stochastic planners
+void MyopicExpersController::setSampleSize(const int num){
+    this->sample_size = num;
+}
+
+// setAlphas set the alpha for running adjusted planners
+void MyopicExpersController::setAlphas(const std::vector<double>& alphas){
+    this->alphas = alphas;
+}
+
+bool MyopicExpersController::hasValidSampleSize(){
+    if(this->sample_size <= 0){
+        std::cout << "Sample size for stochastic planners are not set! " 
+            << "Please call setSampleSize() first!\n";
+        return false;
+    }
+    return true;
+}
+
+bool MyopicExpersController::hasValidAlphas(){
+    if(this->alphas.empty()){
+        std::cout << "There is no alpha for adjusted planners! " 
+            << "Please call setAlphas() first!\n";
+        return false;
+    }
+    return true;
+}
+bool MyopicExpersController::hasValidNumExperPlan(){
+    if(this->num_exper_plan <= 0){
+        std::cout << "Number of experiments for running planners are not set." 
+            << "Please call setNumExperPlan() first!\n";
+        return false;
+    }
+    return true;
+}
+bool MyopicExpersController::hasValidNumExperGen(){
+    if(this->num_exper_gen <= 0){
+        std::cout << "Number of experiments for gerenrating events are not set." 
+            << "Please call setNumExperGen() first!\n";
+        return false;
+    }
+    return true;
+}
+
+// setAlphas set the alpha for running adjusted planners
+void MyopicExpersController::setAlphas(
+    const double from, const double to, const double step_size
+){
+    if(from > to || step_size == 0 ||
+       from > 1 || from < 0 ||
+       to > 1 || to < 0)
+    {
+        std::cout << "Error: setAlphas error in controller.\n";
+        return;
+    }
+    this->alphas.clear();
+    if(from == to){
+        this->alphas.push_back(from);
+        return;
+    }
+    
+    double current_alpha = from;
+    while(current_alpha < to){
+        this->alphas.push_back(current_alpha);
+        current_alpha += step_size;
+    }
+    this->alphas.push_back(to);
+}
+
 // runPlannerND create a DeterExperimentor, run one experiment, 
 // and then return result.
 ExperimentorResult MyopicExpersController::runPlannerND(
@@ -58,29 +137,29 @@ ExperimentorResult MyopicExpersController::runPlannerNS(
     return planner.run();
 }
 
-// // runPlannerAD create a ADExperimentor, run one experiment, 
-// // and then return result.
-// ExperimentorResult MyopicExpersController::runPlannerAD(
-//     const int exper_id
-// ){
-//     ADExperimentor planner(this->data);
-//     planner.addOrders(this->orders.at(exper_id));
-//     planner.addIndDemands(this->demands.at(exper_id));
-//     planner.addEstIndDemands(this->exp_demands);
-//     return planner.run();
-// }
+// runPlannerAD create a ADExperimentor, run one experiment, 
+// and then return result.
+ExperimentorResult MyopicExpersController::runPlannerAD(
+    const int exper_id, const double alpha
+){
+    ADExperimentor planner(this->data, alpha);
+    planner.addOrders(this->orders.at(exper_id));
+    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addEstIndDemands(this->exp_demands);
+    return planner.run();
+}
 
-// // runPlannerAS create a ASExperimentor, run one experiment, 
-// // and then return result.
-// ExperimentorResult MyopicExpersController::runPlannerAS(
-//     const int exper_id
-// ){
-//     ASExperimentor planner(this->data);
-//     planner.addOrders(this->orders.at(exper_id));
-//     planner.addIndDemands(this->demands.at(exper_id));
-//     planner.addEstIndDemands(this->est_demands);
-//     return planner.run();
-// }
+// runPlannerAS create a ASExperimentor, run one experiment, 
+// and then return result.
+ExperimentorResult MyopicExpersController::runPlannerAS(
+    const int exper_id, const double alpha
+){
+    ASExperimentor planner(this->data, alpha);
+    planner.addOrders(this->orders.at(exper_id));
+    planner.addIndDemands(this->demands.at(exper_id));
+    planner.addEstIndDemands(this->est_demands);
+    return planner.run();
+}
 
 // checkHasData check if readDataFolder has been called and cout alert
 // message
@@ -101,9 +180,12 @@ void MyopicExpersController::readDataFolder(const std::string& folder){
 
 // generateEvents generates and stores all type of generators, 
 // including orders, demands, exp_demands, est_demands
-void MyopicExpersController::generateEvents(
-    const int num_exper, const int sample_size
-){
+void MyopicExpersController::generateEvents(){
+
+    if(!this->hasValidNumExperGen() || !this->hasValidSampleSize()){
+        return;
+    }
+
     // Create generators
     std::cout << "Create generators ...\n";
     OrderGenerator gen_order(this->data);
@@ -113,78 +195,84 @@ void MyopicExpersController::generateEvents(
 
     // Generate orders and demands
     std::cout << "Generate need data ...\n";
-    this->orders = gen_order.generate(num_exper);
-    this->demands = gen_demand.generate(num_exper);
+    this->orders = gen_order.generate(this->num_exper_gen);
+    this->demands = gen_demand.generate(this->num_exper_gen);
     this->exp_demands = gen_exp_demand.generate();
     this->est_demands = gen_est_demand.generate(sample_size);
 }
 
 
 // runPlanner run the planner num_exper times
-void MyopicExpersController::runPlanner(
-    const std::string& planner_type, const int num_exper
-){
-    std::map<int, ExperimentorResult> planner_result;
+void MyopicExpersController::runPlanner(const std::string& planner_type){
+    if(!this->hasValidNumExperPlan()) return;
+    
+    
     if(planner_type == "ND"){
-        for(int e = 1; e <= num_exper; e++){
+        std::map<int, ExperimentorResult> planner_result;
+        for(int e = 1; e <= this->num_exper_plan; e++){
             planner_result[e] = this->runPlannerND(e);
         }
+        this->results[planner_type] = planner_result;
     } 
     else if(planner_type == "NS"){
-        for(int e = 1; e <= num_exper; e++){
+        std::map<int, ExperimentorResult> planner_result;
+        for(int e = 1; e <= this->num_exper_plan; e++){
             planner_result[e] = this->runPlannerNS(e);
         }
+        this->results[planner_type] = planner_result;
     }
-    // } else if(planner_type == "AD"){
-    //     for(int e = 1; e <= num_exper; e++){
-    //         planner_result[e] = this->runPlannerAD(e);
-    //     }
-    // } else if(planner_type == "AS"){
-    //     for(int e = 1; e <= num_exper; e++){
-    //         planner_result[e] = this->runPlannerAS(e);
-    //     }
-    // } 
+    else if(planner_type == "AD"){
+        for(const auto& alpha: this->alphas){
+            std::map<int, ExperimentorResult> planner_result;
+            for(int e = 1; e <= this->num_exper_plan; e++){
+                planner_result[e] = this->runPlannerAD(e, alpha);
+            }
+            std::string name = planner_type + "_" + std::to_string(alpha);
+            this->results[name] = planner_result;
+        }
+        
+    }
+    else if(planner_type == "AS"){
+        for(const auto& alpha: this->alphas){
+            std::map<int, ExperimentorResult> planner_result;
+            for(int e = 1; e <= this->num_exper_plan; e++){
+                planner_result[e] = this->runPlannerAS(e, alpha);
+            }
+            std::string name = planner_type + "_" + std::to_string(alpha);
+            this->results[name] = planner_result;
+        }
+    } 
     else{
         std::cout << "Planner " << planner_type << "no exist in controller!\n";
         return;
     }
-    this->results[planner_type] = planner_result;
+    
 }
 
 // runAll go through processes including reading data, generating events,
 // and running planners. If you want to store results after calling runAll,
 // please call storeAllResults(folder) and input the result-folder path.
-void MyopicExpersController::runAll(
-    const std::string& data_folder, const int num_exper, const int sample_size
-){ 
+void MyopicExpersController::runAll(const std::string& data_folder){ 
+    
     // Read all data
     std::cout << "Reading data in " << data_folder << " ...\n";
     this->readDataFolder(data_folder);
 
     // Generate events
     std::cout << "GenerateEvents ...\n";
-    this->generateEvents(num_exper, sample_size);
-    this->debug();
+    this->generateEvents();
     
     // Create planners
     std::cout << "Run Planners ...\n";
-    this->runPlanner("ND", num_exper);
-    
-    this->runPlanner("NS", num_exper);
-    // this->runPlanner("AD", num_exper);
-    // this->runPlanner("AS", num_exper);
+    this->runPlanner("ND");
+    this->runPlanner("NS");
+    this->runPlanner("AD");
+    this->runPlanner("AS");
     std::cout << "Finish planning! \n";
 }
 
 void MyopicExpersController::debug(){
-    // for(auto& demand: this->demands.at(1)){
-    //     std::cout << "Demand " << demand.first << ": "
-    //         << demand.second << "\n";
-    // }
-    // for(auto& order: this->orders.at(1)){
-    //     std::cout << "Order " << order.first << ": \n"
-    //         << order.second << "\n";
-    // }
+
 }
 
 // storeResult store the result of given planner type
@@ -266,11 +354,11 @@ void MyopicExpersController::storeResult(
 // Please make sure there is "/" for mac or "\" for windows after folder
 void MyopicExpersController::storeAllResults(const std::string& folder){
     std::cout << "Store all...\n";
-    createRelativeFolder(folder);
-    this->storeResult("ND", folder + "ND_result.csv");
-    this->storeResult("NS", folder + "NS_result.csv");
-    this->storeResult("AD", folder + "AD_result.csv");
-    this->storeResult("AS", folder + "AS_result.csv");
+    for(const auto& result: this->results){
+        std::string name = result.first;
+        std::string path = folder + name + "_result.csv";
+        this->storeResult(name, path);
+    }
     std::cout << "Finish storing!\n";
 }
 

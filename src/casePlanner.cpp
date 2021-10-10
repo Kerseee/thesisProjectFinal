@@ -747,21 +747,107 @@ void StochExperimentor::processOrder(const int period, OrderDecision& od){
 
 }
 
-// // ======================================================================
-// // --------------------------- ADExperimentor ---------------------------
-// // ======================================================================
+// ======================================================================
+// --------------------------- AdjExperimentor --------------------------
+// ======================================================================
 
-// ADExperimentor::ADExperimentor(){}
-// ADExperimentor::ADExperimentor(const data::CaseData& data)
-//     : DeterExperimentor(data){}
+AdjExperimentor::AdjExperimentor(){}
+
+// alpha is a double-type parameter between 0 and 1. It control the 
+// baseline of accepting orders in adjusted planner.
+AdjExperimentor::AdjExperimentor(double alpha){
+    this->alpha = alpha;
+}
+
+// findBaseline find the baseline in bs mode
+double AdjExperimentor::findBaseline(
+    const int period, const OrderDecision& od
+){
+    // Get capacity of request days
+    auto cap = this->hotel.getAllMinCapInPeriods(od.order->request_days);
+    
+    // Get total number of requested rooms
+    int total_rooms = 0;
+    for(const auto& room: od.order->request_rooms){
+        int num = room.second;
+        total_rooms += num;
+    }
+
+    // Find the upgrade plan that upgrade as much as possible to the higher
+    // type.
+    std::map<data::tuple2d, int> max_upg_order;
+    for(int r = this->hotel.getNumRoomType(); r >= 1; r--){
+        int upg_num = std::min(total_rooms, cap.at(r));
+        // Store the number of upgradable rooms to each request day
+        for(const auto& day: od.order->request_days){
+            max_upg_order[{day, r}] = upg_num;
+        }
+        total_rooms -= upg_num;
+    } 
+
+    // Compute the total revenue in case that we sold these rooms to individuals.
+    double total_revenue = this->getRevIndDemand(max_upg_order);
+
+    // Compute baselines
+    double baseline_ub = total_revenue;
+    double baseline_lb = od.exp_rej_togo - (od.exp_acc_togo - od.revenue);
+    double baseline = baseline_lb
+                      + std::max(baseline_ub - baseline_lb, 0.0) * this->alpha;
+    return baseline;
+}
+
+// decide decide whether to accept this plan (upgraded order) or not.
+void AdjExperimentor::decide(OrderDecision& od, double baseline){
+    od.accepted = (od.revenue > baseline);
+}
+
+
+// ======================================================================
+// --------------------------- ADExperimentor ---------------------------
+// ======================================================================
+
+ADExperimentor::ADExperimentor(){}
+ADExperimentor::ADExperimentor(const data::CaseData& data, const double alpha)
+    : CaseExperimentor(data), DeterExperimentor(data), AdjExperimentor(alpha){}
+
+// findBestOrderDecision return the best order decision
+OrderDecision ADExperimentor::findBestOrderDecision(
+    const int period, const Order& order
+){
+    // Initial the decision node
+    OrderDecision decision(order);
+    // Process the order
+    this->processOrder(period, decision);
+    // Find baseline
+    double baseline = this->findBaseline(period, decision);
+    // Make decision
+    this->decide(decision, baseline);
+    return decision;
+}
 
 // // ======================================================================
 // // --------------------------- ASExperimentor ---------------------------
 // // ======================================================================
 
-// ASExperimentor::ASExperimentor(){}
-// ASExperimentor::ASExperimentor(const data::CaseData& data)
-//     : StochExperimentor(data){}
+ASExperimentor::ASExperimentor(){}
+ASExperimentor::ASExperimentor(const data::CaseData& data, const double alpha)
+    : CaseExperimentor(data), StochExperimentor(data), AdjExperimentor(alpha){}
+
+// findBestOrderDecision return the best order decision
+OrderDecision ASExperimentor::findBestOrderDecision(
+    const int period, const Order& order
+){
+    // Initial the decision node
+    OrderDecision decision(order);
+    // Process the order
+    this->processOrder(period, decision);
+    // Find baseline
+    double baseline = this->findBaseline(period, decision);
+    // Make decision
+    this->decide(decision, baseline);
+    return decision;
+}
+
 
 }// End of namespace
 

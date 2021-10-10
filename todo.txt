@@ -1,20 +1,11 @@
-日期：10/8（五）
+日期：10/10（日）
 
 TODO:
 
-- 寫 controller 存檔 (V)
-- 先測 deter (V)
-
-- 補完 StochExperimentor (V)
-- 測 Stoch
-- 補完 AdjExperimentor
-- 補完 ADExperimentor
-- 補完 ASExperimentor
-
-- 在 controller 寫 Generator 寫檔讀檔
-
-- 補 refactor raiseKeyError
-- 測試！
+- controller 的 run all 改成 run 完一個就存一個（直接把 run 跟存檔放一起好了）
+- 寫 generator 的讀寫檔
+- 設計 main
+- 寫文件
 
 
 ================================================================================================

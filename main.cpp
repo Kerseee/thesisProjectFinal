@@ -39,14 +39,48 @@ void debug();
 void numericalExperiment();
 
 int main(int argc, const char * argv[]) {
-    std::string input_folder = "input/CaseStudy/data1/";
-    std::string output_folder = "results/CaseStudy/";
-    int num_exper = 0, sample_size = 0;
-    std::cout << "Please input number of experiment and sample_size:\n";
-    std::cin >> num_exper >> sample_size;
-
+    
+    // Create controller
     planner::MyopicExpersController controller;
-    controller.runAll(input_folder, num_exper, sample_size);
+    
+    // Input the path of input folder
+    std::string input_folder;
+    cout << "Input the path of INPUT folder, and make sure "
+        << "there is \\ on windows or / on mac after the folder path:\n";
+    cin >> input_folder;
+
+    // Input the path of output folder
+    std::string output_folder;
+    cout << "\nInput the path of OUTPUT folder, and make sure "
+        << "there is \\ on windows or / on mac after the folder path:\n";
+    cin >> output_folder;
+    planner::createRelativeFolder(output_folder);
+
+    // Set parameters:
+    int num_exper_gen = 0, num_exper_plan = 0, sample_size = 0;
+    
+    cout << "\nInput the number of experiments for generating random events: ";
+    cin >> num_exper_gen;
+    controller.setNumExperGen(num_exper_gen);
+    
+    cout << "\nInput the number of sample size for stochastic planners: ";
+    cin >> sample_size;
+    controller.setSampleSize(sample_size);
+
+    cout << "\nInput the number of experiments for running planners: ";
+    cin >> num_exper_plan;
+    controller.setNumExperPlan(num_exper_plan);
+
+    double from = 0, to = 1, step_size = 0.1;
+    cout << "\nInput 3 double for generating alphas for adjusted planners \n"
+        << "format: from to step_size\n" 
+        << "e.g. 0 1 0.1 meaning that alphas = [0, 0.1, 0.2, ..., 0.9, 1]\n "
+        << "(all double shoud be inside of [0, 1]):\n";
+    cin >> from >> to >> step_size;
+    controller.setAlphas(from, to, step_size);
+    cout << "\nSetting success! Now start running...\n";
+
+    controller.runAll(input_folder);
     controller.storeAllResults(output_folder);
     // nlohmann::json j;
     // j["pi"] = 3.41;

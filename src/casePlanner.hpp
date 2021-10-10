@@ -169,28 +169,43 @@ public:
 // Adjusted planner
 class AdjExperimentor: public virtual CaseExperimentor {
 protected:
+    double alpha;    // alpha \in [0,1]
+    
+    AdjExperimentor();
+    // alpha is a double-type parameter between 0 and 1. It control the 
+    // baseline of accepting orders in adjusted planner.
+    AdjExperimentor(double alpha);
+    
     // findBaseline find the baseline in bs mode
-    double findBaseline(const int period, const MyopicUpgradePlan& plan, 
-                        const State& state);
+    double findBaseline(const int period, const OrderDecision& od);
     
     // decide decide whether to accept this plan (upgraded order) or not.
-    void decide(MyopicUpgradePlan& plan, double baseline);
+    void decide(OrderDecision& od, double baseline);
 };
 
 class ADExperimentor: 
-    public virtual AdjExperimentor, public virtual DeterExperimentor {
+    public virtual DeterExperimentor, public virtual AdjExperimentor {
 public:
     ADExperimentor();
-    ADExperimentor(const data::CaseData& data);
+    ADExperimentor(const data::CaseData& data, const double alpha);
+    
+    // findBestOrderDecision return the best order decision
+    OrderDecision findBestOrderDecision(
+        const int period, const Order& order);
+
 };
 
 class ASExperimentor: 
-    public virtual AdjExperimentor, public virtual StochExperimentor {
+    public virtual StochExperimentor, public virtual AdjExperimentor {
 public:
     ASExperimentor();
-    ASExperimentor(const data::CaseData& data);
+    ASExperimentor(const data::CaseData& data, const double alpha);
+    
+    // findBestOrderDecision return the best order decision
+    OrderDecision findBestOrderDecision(
+        const int period, const Order& order);
 };
-
+    
 }
 
 // raiseKeyError output the error message and exit
