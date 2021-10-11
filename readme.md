@@ -53,7 +53,7 @@ p_si.csv 更改：
 補充說明，系統跑的流程如下：
 1. 讀資料
 2. 生 expected & estimated demands
-    - 這兩個資料結構分別是 deterministic/stochastic 演算法用來預測未來狀況的，以判斷目前這張單是否需要接。這兩個結構跟只 based on input data 但不 based on experiments，因此在執行實驗前會先生。如果期數越多（booking_periods, service_periods）或 sample_size 越大，就會升越久。
+    - 這兩個資料結構分別是 deterministic/stochastic 演算法用來預測未來狀況的，以判斷目前這張單是否需要接。這兩個結構跟只 based on input data 但不 based on experiments，因此在執行實驗前會先產生。如果期數越多（booking_periods, service_periods）或 sample_size 越大，就會生越久。
 3. 跑實驗
     - 每次實驗都會生一組 orders 和 一組 demands，逐一跑完所有的方法並各自存檔後，才會開啟下一次實驗。
     - 所以假設在第 501 次時跑太久想切掉也沒關係，因為前 500 次每種方法都是跑完就直接紀錄了。
