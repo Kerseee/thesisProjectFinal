@@ -4,6 +4,7 @@
 #include <map>
 #include <tuple>
 #include <vector>
+#include <time.h>
 #include "data.hpp"
 #include "planner.hpp"
 #include "caseData.hpp"
