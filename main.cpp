@@ -8,18 +8,9 @@
 
 #include <iostream>
 #include <string>
-// #include <map>
-// #include <tuple>
 #include <time.h>
-// #include <chrono>
-// #include <random>
-// #include "src/data.hpp"
-// #include "src/planner.hpp"
 #include "src/caseController.hpp"
-// #include "src/experimentor.hpp"
-// #include "src/caseData.hpp"
-// #include "src/caseGenerator.hpp"
-// #include "src/casePlanner.hpp"
+
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -27,20 +18,15 @@
 
 using namespace std;
 
-// const string PARAM_PREFIX = "input/params";
-// const string PROB_PREFIX = "input/prob";
-// const string DIST_PREFIX = "input/distParams";
-// const string OUTPUT_PREFIX = "result";
-// const string DECISION_PREFIX = "result/decision";
-// const string REVENUE_PREFIX = "result/revenue";
-// const string WINDOWS_PREFIX = "C:/Users/racs1/Desktop/thesisProject/";
-
-void debug();
 void numericalExperiment();
+void runCaseStudy();
 
 int main(int argc, const char * argv[]) {
-    
+    runCaseStudy();
+    return 0;
+}
 
+void runCaseStudy(){
     // Create controller
     planner::MyopicExpersController controller;
     
@@ -81,16 +67,8 @@ int main(int argc, const char * argv[]) {
 
     // Run
     controller.runAll();
-
-
-    return 0;
 }
 
-void debug(){
-    planner::MyopicExpersController controller;
-    controller.debug();
-
-}
 
 void numericalExperiment(){
     string scenarios[] = {"S5I3C25m5b70r2d25K10T10", "S5I3C25m10b70r2d25K10T10", "S5I3C25m15b70r2d25K10T10", "S5I3C25m20b70r2d25K10T10",

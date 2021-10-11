@@ -10,6 +10,7 @@
 #include "caseData.hpp"
 #include "caseGenerator.hpp"
 #include "caseStructures.hpp"
+#include "../third_party/progressbar-master/include/progressbar.hpp"
 
 namespace planner{
 
@@ -396,8 +397,10 @@ std::map<data::tuple2d, int> ExpectedDemandGenerator::generateExpDemand(
 std::map<int, std::map<data::tuple2d, int> > 
 ExpectedDemandGenerator::generate(){
     std::map<int, std::map<data::tuple2d, int> > exp_all_demands;
+    progressbar bar(this->data->scale.booking_period);
     for(int t = this->data->scale.booking_period; t >= 1; t--){
         exp_all_demands[t] = this->generateExpDemand(t);
+        bar.update();
     }
     return exp_all_demands;
 }
@@ -474,8 +477,10 @@ EstimatedDemandGenerator::genDemandScenarios(
 std::map<int, std::vector<std::map<data::tuple2d, int> > >
 EstimatedDemandGenerator::generate(const int sample_size){
     std::map<int, std::vector<std::map<data::tuple2d, int> > > all_demands;
+    progressbar bar(this->data->scale.booking_period); 
     for(int t = this->data->scale.booking_period; t >= 1; t--){
         all_demands[t] = this->genDemandScenarios(sample_size, t);
+        bar.update();
     }
     return all_demands;
 }

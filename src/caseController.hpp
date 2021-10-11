@@ -12,7 +12,6 @@
 #include "caseStructures.hpp"
 #include "caseGenerator.hpp"
 #include "casePlanner.hpp"
-#include "../third_party/json-develop/single_include/nlohmann/json.hpp"
 
 namespace planner {
 
@@ -125,9 +124,6 @@ public:
     // generateEstDemands generate expected demands for stochastic planners
     void generateEstDemands();
 
-    // storeOrdersToJson store the orders in this controller into json file
-    void storeOrdersToJson(const std::string& path);
-
     // runAll go through processes including reading data, generating events,
     // running planners, and store results.
     void runAll();
@@ -135,11 +131,6 @@ public:
 
     void debug();
 };
-
-// strToTuple2d transfer "1_2" to {1, 2}
-data::tuple2d strToTuple2d(const std::string& str);
-
-nlohmann::json orderToJson(const Order& order);
 
 }
 

@@ -204,29 +204,40 @@ void MyopicExpersController::generateEstDemands(){
 void MyopicExpersController::runPlanners(const int exper_id){
     if(!this->hasValidAlphas()) return;
 
+    std::cout << "Run experiment " << exper_id << ": " << std::flush;
+
     // Generate orders and demand for this experiment
     this->generateOrders();
     this->generateDemands();
 
     // Run ND
+    std::cout << "ND " << std::flush;
     ExperimentorResult result_ND = this->runPlannerND();
     this->appendResultToFile(exper_id, "ND", result_ND);
 
     // Run NS
+    std::cout << "NS " << std::flush;
     ExperimentorResult result_NS = this->runPlannerNS();
     this->appendResultToFile(exper_id, "NS", result_NS);
 
+    // Run AD
+    std::cout << "AD " << std::flush;
     for(const auto& alpha: this->alphas){
-        // Run AD
         ExperimentorResult result_AD = this->runPlannerAD(alpha);
         std::string name_AD = "AD_" + std::to_string(alpha);
         this->appendResultToFile(exper_id, name_AD, result_AD);
-        
-        // Run AS
+    }
+
+    // Run AS
+    std::cout << "AS " << std::flush;
+    for(const auto& alpha: this->alphas){
         ExperimentorResult result_AS = this->runPlannerAS(alpha);
         std::string name_AS = "AS_" + std::to_string(alpha);
         this->appendResultToFile(exper_id, name_AS, result_AS);
     }
+
+    std::cout << "done!" << std::endl;
+
 }
 
 void MyopicExpersController::setResultFileNames(){
@@ -346,87 +357,20 @@ void MyopicExpersController::runAll(){
     this->readDataFolder(this->input_folder);
 
     // Generate estimated and expected demands for planners
-    std::cout << "Generating expected demands ...\n";
+    std::cout << "\nGenerating expected demands ...\n";
     this->generateExpDemands();
 
-    std::cout << "Generating estimated demands ...\n";
+    std::cout << "\nGenerating estimated demands ...\n";
     this->generateEstDemands();
 
     // Prepare the result files
-    std::cout << "Preparing result files ...\n";
+    std::cout << "\nPreparing result files ...\n";
     this->prepareResultsFiles();
 
     // Run planners
-    std::cout << "Start planning! \n";
+    std::cout << "\nStart planning! \n";
     for(int e = 1; e <= this->num_experiments; e++){
-        std::cout << "Running experiment " << e << " ... ";
         this->runPlanners(e);
-        std::cout << "done!\n";
     }
 }
-
-void MyopicExpersController::debug(){
-
-}
-
-// storeOrdersToJson store the orders in this controller into json file
-void MyopicExpersController::storeOrdersToJson(const std::string& path){
-}
-
-
-// ======================================================================
-// --------------------------- Transfer json  ---------------------------
-// ======================================================================
-
-// strToTuple2d transfer "1_2" to {1, 2}
-data::tuple2d strToTuple2d(const std::string& str){
-    size_t stop_pos = str.find('_');
-    int first = std::stoi(str.substr(0, stop_pos));
-    int second = std::stoi(str.substr(stop_pos + 1));
-    return std::make_tuple(first, second);
-}
-
-nlohmann::json orderToJson(const Order& order){
-    nlohmann::json j;
-    j["is_order"] = order.is_order;
-    j["price"] = order.price;
-    j["request_days"] = nlohmann::json(order.request_days);
-    std::cout << "Here!!\n";
-    j["request_rooms"] = nlohmann::json(std::map<int, int>());
-    j["upgrade_fees"] = nlohmann::json(std::map<std::string, double>());
-
-    for(const auto& room: order.request_rooms){
-        std::string type = std::to_string(room.first);
-        int num = room.second;
-        j["request_rooms"][type] = num;
-    }
-    for(const auto& upgrade_fee: order.upgrade_fees){
-        const auto& pair = upgrade_fee.first;
-        std::string lower_type = std::to_string(std::get<0>(pair));
-        std::string upper_type = std::to_string(std::get<1>(pair));
-        std::string key = lower_type + "_" + upper_type;
-        double fee = upgrade_fee.second;
-        j["upgrade_fees"][key] = fee;
-    }
-    return j;
-}
-
-Order jsonToOrder(const nlohmann::json& j){
-    Order order;
-    order.is_order = j["is_order"];
-    order.price = j["price"];
-    order.request_days = j["request_days"].get<std::set<int> >();
-    order.request_rooms = j["request_rooms"].get<std::map<int, int> >();
-    
-    for(auto& upgrade_fee: 
-        j["upgrade_fees"].get<std::map<std::string, double> >()
-    ){
-        auto key = strToTuple2d(upgrade_fee.first);
-        auto fee = upgrade_fee.second;
-        order.upgrade_fees[key] = fee;
-    }
-    return order;
-}
-
-
 }
