@@ -19,12 +19,15 @@
         - before、booking_days、service_period 的關係為： before = booking_days + service_period - 1，例如接單日 1, 服務期 1 的話，before 為 1
     - room_num 25 25 25：代表 3 種房型各有幾間，左到右為房型低到高（1 到 3），roomtype 數字為多少，room_num 就要有多少個數字，數字間以一個空白隔開
 
+discount_prob.csv 更改：
+- column 改成原本的折扣 * 100，為 int，例如 5 代表 0.05
+
 p_si.csv 更改：
 - 最左邊加上一個 column 代表是服務期第幾期，從 1 開始。
 - column 編號改成 1, 2, 3，代表原本的 L, M, H
 
 # 操作說明
-執行：在此專案 main.exe 所在的 directory 輸入指令： ./main.exe
+執行：在此專案 main.exe 所在的 directory 輸入指令： ./main.exe <br>
 以下為操作範例：
 
 輸入資料檔所在的資料夾<br>
@@ -36,8 +39,8 @@ p_si.csv 更改：
 輸入 sample size，此數字會決定 stochastic methods 預測未來需求的 scenarios 數量，越大會跑越久，但理論上會越準<br>
 ![螢幕快照 2021-10-11 下午4 07 43](https://user-images.githubusercontent.com/31405635/136754814-4b720bf7-392c-49c3-a4ae-544c0fa49a25.png)
 
-輸入 alpha 的區間與 step size，此處需要輸入三個介於 0 到 1 之間的數值，皆以空格隔開。這些 alpha 為 adjusted methods 的參數。
-舉例來說輸入 0 1 0.1 代表 adjusted methods 需要跑過這些 alphas: [0, 0.1, 0.2, ..., 0.8, 0.9, 0.1]
+輸入 alpha 的區間與 step size，此處需要輸入三個介於 0 到 1 之間的數值，皆以空格隔開。這些 alpha 為 adjusted methods 的參數。<br>
+舉例來說輸入 0 1 0.1 代表 adjusted methods 需要跑過這些 alphas: [0, 0.1, 0.2, ..., 0.8, 0.9, 0.1] <br>
 所以如果輸入 0.5 1 0.5 則代表需要跑過的 alphas 只有 [0.5, 1]<br>
 ![螢幕快照 2021-10-11 下午4 10 07](https://user-images.githubusercontent.com/31405635/136755156-576cf703-1265-441a-870d-9edf438e118c.png)
 
@@ -56,7 +59,7 @@ p_si.csv 更改：
     - 所以假設在第 501 次時跑太久想切掉也沒關係，因為前 500 次每種方法都是跑完就直接紀錄了。
 
 # Code 架構簡介
-這次的 case study 把以前的 code 整個 refactor 過，如果需要的話只要看 src/ 資料夾裡面檔名叫 caseXXXX 的即可。
+這次的 case study 把以前的 code 整個 refactor 過，如果需要的話只要看 src/ 資料夾裡面檔名叫 caseXXXX 的即可。<br>
 總共有五組檔案，以下分別簡介這五組檔案的作用，如果需要的話可自行修改。
 
 - caseController
