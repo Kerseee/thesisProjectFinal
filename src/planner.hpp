@@ -18,9 +18,9 @@
 
 namespace planner {
 void createFolder(std::string path);
-    
 // Store state in the model.
 // In this problem this equals to available rooms.
+// Please call State::setScale() before use
 struct State{
     static int num_service_period;  // |S|
     static int num_room_type;       // |I|
@@ -55,7 +55,6 @@ struct UpgradedOrder{
 };
 
 struct MyopicUpgradePlan{
-
     int id;         // index of this order
     State order;    // origin request
     State upgraded_order;    // order after upgraded
